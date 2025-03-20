@@ -3,7 +3,7 @@ import { authRouter } from "./auth.route"
 
 const routers = (app: Express): void => {
     
-    app.use("/", (req: Request, res: Response) => {
+    app.get("/", (req: Request, res: Response) => {
         res.send("server-api-quan-ly-bds")
     })
 
