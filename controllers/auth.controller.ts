@@ -23,9 +23,7 @@ export const login = async (req: Request, res: Response) => {
             },
             raw: true
         })
-
         
-
         if(!nhanvien) {
             res.status(400).json({
                 message: "Tài khoản không tồn tại!"
@@ -46,9 +44,12 @@ export const login = async (req: Request, res: Response) => {
         delete nhanvien["matkhau"]
 
         res.status(200).json({
+            code: 200,
             message: "Đăng nhập thành công!",
-            nhanvien,
-            token
+            data: {
+                ...nhanvien,
+                token
+            }
         })
     } catch(err) {
         console.log('Error in login controller: ' +  err.message);
