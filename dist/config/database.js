@@ -9,6 +9,7 @@ dotenv_1.default.config();
 const sequelize = new sequelize_1.Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD, {
     host: process.env.DATABASE_HOST,
     dialect: "mysql",
+    dialectModule: require('mysql2'),
     dialectOptions: {
         typeCast: function (field, next) {
             if (field.type === 'BIT' && field.length === 1) {
