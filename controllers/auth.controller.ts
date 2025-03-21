@@ -109,7 +109,7 @@ export const resetPassword = async (req: Request, res: Response) => {
             message: "Đặt lại mật khẩu thành công!",
         })
     } catch (error) {
-        console.log('Error in login controller: ' +  error.message);
+        console.log('Error in login controller: ' +  error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 }
