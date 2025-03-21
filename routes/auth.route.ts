@@ -6,7 +6,12 @@ const router: Router = Router()
 
 router.post("/login", controller.login )
 
-router.patch("/password-reset", authMiddleware.protectRoute, controller.resetPassword )
+router.patch(
+    "/password-reset", 
+    authMiddleware.protectRoute, 
+    authMiddleware.isAdmin, 
+    controller.resetPassword 
+)
 
 router.post("/logout", controller.logout)
 

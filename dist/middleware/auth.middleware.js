@@ -8,8 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.protectRoute = void 0;
+exports.idNhanvien = exports.isAdmin = exports.protectRoute = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const nhan_vien_model_1 = __importDefault(require("../models/nhan_vien.model"));
 const protectRoute = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const token = req.cookies.token;
@@ -21,12 +26,71 @@ const protectRoute = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             });
             return;
         }
-        console.log(token);
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        if (!decoded) {
+            res.status(401).json({
+                code: 401,
+                message: "Token không hợp lệ!"
+            });
+        }
+        const id = decoded["nvId"];
+        const user = yield nhan_vien_model_1.default.findOne({
+            where: {
+                nvid: id,
+                trangthai: 1
+            },
+            attributes: { exclude: ['matkhau'] },
+            raw: true
+        });
+        res.locals.user = user;
         next();
     }
     catch (error) {
         console.log("Error in protectRoute middleware: ", error.message);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({
+            code: 500,
+            message: "Token không hợp lệ"
+        });
     }
 });
 exports.protectRoute = protectRoute;
+const isAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (res.locals.user.quyen !== 0) {
+            res.status(401).json({
+                code: 401,
+                message: "Không có quyền truy cập"
+            });
+            return;
+        }
+        next();
+    }
+    catch (error) {
+        console.log("Error in protectRoute middleware: ", error.message);
+        res.status(500).json({
+            code: 500,
+            message: "Lỗi Server!"
+        });
+    }
+});
+exports.isAdmin = isAdmin;
+const idNhanvien = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (res.locals.user.quyen !== 1) {
+            res.status(401).json({
+                code: 401,
+                message: "Không có quyền truy cập"
+            });
+            return;
+        }
+        next();
+    }
+    catch (error) {
+        console.log("Error in protectRoute middleware: ", error.message);
+        res.status(500).json({
+            code: 500,
+            message: "Lỗi Server!"
+        });
+    }
+});
+exports.idNhanvien = idNhanvien;
