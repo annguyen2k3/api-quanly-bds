@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.logout = exports.login = void 0;
+exports.resetPassword = exports.profile = exports.logout = exports.login = void 0;
 const nhan_vien_model_1 = __importDefault(require("../models/nhan_vien.model"));
 const generateToken_1 = require("../helper/generateToken");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -71,6 +71,20 @@ const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.logout = logout;
+const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        res.status(200).json({
+            code: 200,
+            message: "Lấy thông tin thành công!",
+            data: Object.assign({}, res.locals.user)
+        });
+    }
+    catch (error) {
+        console.log('Error in logout controller', error.message);
+        res.status(500).json({ message: 'Lỗi Server' });
+    }
+});
+exports.profile = profile;
 const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.body.nvid;

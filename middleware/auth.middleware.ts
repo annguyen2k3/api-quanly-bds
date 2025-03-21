@@ -34,6 +34,13 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
             raw: true
         })
 
+        if(!user) {
+            res.status(401).json({ 
+                code: 401,
+                message: "Lỗi tài khoản!" 
+            });
+        }
+
         res.locals.user = user;
 
         next();

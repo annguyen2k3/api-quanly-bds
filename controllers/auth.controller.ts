@@ -68,6 +68,22 @@ export const logout = async (req: Request, res: Response) => {
       }
 }
 
+// [GET] /auth/profile
+export const profile = async (req: Request, res: Response) => {
+    try {
+        res.status(200).json({
+            code: 200,
+            message: "Lấy thông tin thành công!",
+            data: {
+                ...res.locals.user
+            }
+        })
+      } catch (error) {
+        console.log('Error in logout controller', error.message);
+        res.status(500).json({ message: 'Lỗi Server' });
+      }
+}
+
 // [PATCH] /auth/password-reset
 export const resetPassword = async (req: Request, res: Response) => {
     try {

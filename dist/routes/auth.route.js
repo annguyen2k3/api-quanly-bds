@@ -40,5 +40,6 @@ const authMiddleware = __importStar(require("../middleware/auth.middleware"));
 const router = (0, express_1.Router)();
 router.post("/login", controller.login);
 router.patch("/password-reset", authMiddleware.protectRoute, authMiddleware.isAdmin, controller.resetPassword);
+router.get("/profile", authMiddleware.protectRoute, controller.profile);
 router.post("/logout", controller.logout);
 exports.authRouter = router;

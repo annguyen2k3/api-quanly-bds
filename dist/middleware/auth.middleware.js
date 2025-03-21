@@ -42,6 +42,12 @@ const protectRoute = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             attributes: { exclude: ['matkhau'] },
             raw: true
         });
+        if (!user) {
+            res.status(401).json({
+                code: 401,
+                message: "Lỗi tài khoản!"
+            });
+        }
         res.locals.user = user;
         next();
     }
