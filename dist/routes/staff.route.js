@@ -38,6 +38,8 @@ const express_1 = require("express");
 const router = (0, express_1.Router)();
 const controller = __importStar(require("../controllers/staff.controller"));
 const authMiddleware = __importStar(require("../middleware/auth.middleware"));
+const validateStaff = __importStar(require("../validates/staff.validate"));
 router.get("/detail/:nvid", authMiddleware.protectRoute, authMiddleware.isAdmin, controller.detail);
+router.post("/create", authMiddleware.protectRoute, authMiddleware.isAdmin, validateStaff.info, controller.create);
 router.patch("/password-reset", authMiddleware.protectRoute, authMiddleware.isAdmin, controller.resetPassword);
 exports.staffRouter = router;

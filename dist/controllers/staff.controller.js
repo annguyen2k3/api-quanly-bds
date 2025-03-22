@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.detail = void 0;
+exports.resetPassword = exports.create = exports.detail = void 0;
 const nhan_vien_model_1 = __importDefault(require("../models/nhan_vien.model"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -40,10 +40,36 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(500).json({ message: 'Lỗi Server' });
+        res.status(500).json({ code: 500, message: 'Lỗi Server' });
     }
 });
 exports.detail = detail;
+const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const passHash = yield bcryptjs_1.default.hashSync(req.body.matkhau, parseInt(process.env.SALT_ROUNDS));
+        const dataNv = {
+            taikhoan: req.body.taikhoan,
+            matkhau: passHash,
+            tennv: req.body.tennv,
+            sdt: req.body.sdt,
+            diachi: req.body.diachi,
+            ngaysinh: req.body.ngaysinh,
+            gioitinh: req.body.gioitinh,
+            email: req.body.email,
+            quyen: req.body.quyen,
+        };
+        yield nhan_vien_model_1.default.create(dataNv);
+        res.status(200).json({
+            code: 200,
+            message: "Tạo thành công!"
+        });
+    }
+    catch (error) {
+        console.log('Error in logout controller', error.message);
+        res.status(400).json({ code: 400, message: 'Tạo thất bại! ' + error.message });
+    }
+});
+exports.create = create;
 const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.body.nvid;
@@ -52,6 +78,13 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             res.status(400).json({
                 code: 400,
                 message: "Thiếu thông tin!"
+            });
+            return;
+        }
+        if (newPass.length < 6) {
+            res.status(400).json({
+                code: 400,
+                message: "Mật khẩu tối thiểu 6 ký tự!"
             });
             return;
         }

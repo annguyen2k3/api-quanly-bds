@@ -30,7 +30,8 @@ const nhan_vien = sequelize.define("nhan_vien", {
         type: DataTypes.TINYINT
     },
     doanhthu: {
-        type: DataTypes.FLOAT
+        type: DataTypes.FLOAT,
+        defaultValue: 0
     },
     email: {
         type: DataTypes.STRING(255)
@@ -39,7 +40,8 @@ const nhan_vien = sequelize.define("nhan_vien", {
         type: DataTypes.TINYINT
     },
     trangthai: {
-        type: DataTypes.TINYINT
+        type: DataTypes.TINYINT,
+        defaultValue: 1
     }
 }, {
     tableName: "nhan_vien",

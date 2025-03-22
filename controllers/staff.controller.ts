@@ -33,7 +33,37 @@ export const detail = async (req: Request, res: Response) => {
         })
       } catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(500).json({ message: 'Lỗi Server' });
+        res.status(500).json({code: 500, message: 'Lỗi Server' });
+      }
+}
+
+// [POST] /staff/create 
+export const create = async (req: Request, res: Response) => {
+    try {
+
+        const passHash = await bcrypt.hashSync(req.body.matkhau, parseInt(process.env.SALT_ROUNDS))
+
+        const dataNv = {
+            taikhoan: req.body.taikhoan,
+            matkhau: passHash ,
+            tennv: req.body.tennv,
+            sdt: req.body.sdt,
+            diachi: req.body.diachi,
+            ngaysinh: req.body.ngaysinh,
+            gioitinh: req.body.gioitinh,
+            email: req.body.email,
+            quyen: req.body.quyen,
+        }
+
+        await nhan_vien.create(dataNv)
+
+        res.status(200).json({
+            code: 200,
+            message: "Tạo thành công!"
+        })
+      } catch (error) {
+        console.log('Error in logout controller', error.message);
+        res.status(400).json({code: 400, message: 'Tạo thất bại! ' + error.message });
       }
 }
 
@@ -47,6 +77,14 @@ export const resetPassword = async (req: Request, res: Response) => {
             res.status(400).json({
                 code: 400,
                 message: "Thiếu thông tin!"
+            })
+            return;
+        }
+
+        if(newPass.length < 6) {
+            res.status(400).json({
+                code: 400,
+                message: "Mật khẩu tối thiểu 6 ký tự!"
             })
             return;
         }

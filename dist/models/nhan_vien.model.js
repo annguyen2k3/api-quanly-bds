@@ -34,7 +34,8 @@ const nhan_vien = database_1.default.define("nhan_vien", {
         type: sequelize_1.DataTypes.TINYINT
     },
     doanhthu: {
-        type: sequelize_1.DataTypes.FLOAT
+        type: sequelize_1.DataTypes.FLOAT,
+        defaultValue: 0
     },
     email: {
         type: sequelize_1.DataTypes.STRING(255)
@@ -43,7 +44,8 @@ const nhan_vien = database_1.default.define("nhan_vien", {
         type: sequelize_1.DataTypes.TINYINT
     },
     trangthai: {
-        type: sequelize_1.DataTypes.TINYINT
+        type: sequelize_1.DataTypes.TINYINT,
+        defaultValue: 1
     }
 }, {
     tableName: "nhan_vien",
