@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.idNhanvien = exports.isAdmin = exports.protectRoute = void 0;
+exports.isNhanvien = exports.isAdmin = exports.protectRoute = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const nhan_vien_model_1 = __importDefault(require("../models/nhan_vien.model"));
 const protectRoute = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -36,16 +36,15 @@ const protectRoute = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const id = decoded["nvId"];
         const user = yield nhan_vien_model_1.default.findOne({
             where: {
-                nvid: id,
-                trangthai: 1
+                nvid: id
             },
             attributes: { exclude: ['matkhau'] },
             raw: true
         });
-        if (!user) {
+        if (user["trangthai"] === 0) {
             res.status(401).json({
                 code: 401,
-                message: "Lỗi tài khoản!"
+                message: "Tài khoản đã bị khoá!"
             });
         }
         res.locals.user = user;
@@ -80,7 +79,7 @@ const isAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.isAdmin = isAdmin;
-const idNhanvien = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const isNhanvien = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (res.locals.user.quyen !== 1) {
             res.status(401).json({
@@ -99,4 +98,4 @@ const idNhanvien = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         });
     }
 });
-exports.idNhanvien = idNhanvien;
+exports.isNhanvien = isNhanvien;

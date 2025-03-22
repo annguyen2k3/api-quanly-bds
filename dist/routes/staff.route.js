@@ -33,12 +33,11 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authRouter = void 0;
+exports.staffRouter = void 0;
 const express_1 = require("express");
-const controller = __importStar(require("../controllers/auth.controller"));
-const authMiddleware = __importStar(require("../middleware/auth.middleware"));
 const router = (0, express_1.Router)();
-router.post("/login", controller.login);
-router.get("/profile", authMiddleware.protectRoute, controller.profile);
-router.get("/logout", controller.logout);
-exports.authRouter = router;
+const controller = __importStar(require("../controllers/staff.controller"));
+const authMiddleware = __importStar(require("../middleware/auth.middleware"));
+router.get("/detail/:nvid", authMiddleware.protectRoute, authMiddleware.isAdmin, controller.detail);
+router.patch("/password-reset", authMiddleware.protectRoute, authMiddleware.isAdmin, controller.resetPassword);
+exports.staffRouter = router;

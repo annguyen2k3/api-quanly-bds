@@ -27,17 +27,16 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
 
         const user = await nhan_vien.findOne({
             where: {
-                nvid: id,
-                trangthai: 1
+                nvid: id
             },
             attributes: { exclude: ['matkhau'] },
             raw: true
         })
 
-        if(!user) {
+        if(user["trangthai"] === 0 ) {
             res.status(401).json({ 
                 code: 401,
-                message: "Lỗi tài khoản!" 
+                message: "Tài khoản đã bị khoá!" 
             });
         }
 
@@ -73,7 +72,7 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
     }
 }
 
-export const idNhanvien = async (req: Request, res: Response, next: NextFunction) => {
+export const isNhanvien = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if(res.locals.user.quyen !== 1) {
             res.status(401).json({
