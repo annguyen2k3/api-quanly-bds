@@ -1,56 +1,31 @@
 import { Request, Response, NextFunction } from "express";
+import { z, ZodError } from 'zod';
+import { StatusCodes } from 'http-status-codes';
 
-import validator from "validator"
 
-export const info = (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const taikhoan = req.body.taikhoan;
-        const matkhau = req.body.matkhau;
-        const tennv = req.body.tennv;
-        const sdt = req.body.sdt;
-        const diachi = req.body.diachi;
-        const ngaysinh = req.body.ngaysinh;
-        const gioitinh = req.body.gioitinh;
-        const email = req.body.email;
-        const quyen = req.body.quyen;
-
-        if(taikhoan && matkhau && tennv && sdt && diachi && ngaysinh && gioitinh != null && email && quyen != null) {
-            if(matkhau.length < 6) {
-                res.status(400).json({
-                    code: 400,
-                    message: "Mật khẩu ít nhất 6 ký tự!"
-                })
-                return;
-            }
-
-            if(sdt.toString().length != 9 ) {
-                res.status(400).json({
-                    code: 400,
-                    message: "Số điện thoại không hợp lệ!"
-                })
-                return;
-            }
-
-            if(!validator.isEmail(email)) {
-                res.status(400).json({
-                    code: 400,
-                    message: "Email không hợp lệ!"
-                })
-                return;
-            }
-
+export function validateData(schema: z.ZodObject<any, any>) {
+    return (req: Request, res: Response, next: NextFunction) => {
+        try {
+            schema.parse(req.body);
             next();
-        } else {
-            res.status(400).json({
-                code: 400,
-                message: "Thông tin bị thiếu!"
-            })
-        }
-    } catch (error) {
-        console.log("ERROR: " + error.message);
-        res.status(500).json({
-            code: 500,
-            message: "Lỗi Server!"
-        })
-    }
-}
+        } catch (error) {
+            if (error instanceof ZodError) {
+                const errorMessages = error.errors.map((issue: any) => ({
+                    [issue.path?.[0]]: issue.message
+                }))
+                res.status(StatusCodes.BAD_REQUEST).json({ 
+                    code: StatusCodes.BAD_REQUEST,
+                    message: "Thông tin không hợp lệ",
+                    errors: errorMessages
+                });
+            } else {
+                console.log("ERR: " + error.message)
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+                    code: StatusCodes.INTERNAL_SERVER_ERROR,
+                    message: 'Lỗi Server'
+                });
+            }
+      }
+    };
+  }
+

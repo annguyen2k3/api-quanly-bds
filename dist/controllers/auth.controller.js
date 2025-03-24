@@ -16,13 +16,14 @@ exports.profile = exports.logout = exports.login = void 0;
 const nhan_vien_model_1 = __importDefault(require("../models/nhan_vien.model"));
 const generateToken_1 = require("../helper/generateToken");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const http_status_codes_1 = require("http-status-codes");
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const taikhoan = req.body.taikhoan;
         const matkhau = req.body.matkhau;
         if (!taikhoan || !matkhau) {
-            res.status(400).json({
-                code: 400,
+            res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
+                code: http_status_codes_1.StatusCodes.BAD_REQUEST,
                 message: "Thông tin bị thiếu!"
             });
             return;
@@ -34,63 +35,63 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             raw: true
         });
         if (!nhanvien) {
-            res.status(400).json({
-                code: 400,
+            res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({
+                code: http_status_codes_1.StatusCodes.UNAUTHORIZED,
                 message: "Tài khoản không tồn tại!"
             });
             return;
         }
         if (nhanvien["trangthai"] === 0) {
-            res.status(400).json({
-                code: 400,
+            res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({
+                code: http_status_codes_1.StatusCodes.UNAUTHORIZED,
                 message: "Tài khoản đã bị khoá!"
             });
             return;
         }
         const checkPass = bcryptjs_1.default.compareSync(matkhau, nhanvien["matkhau"]);
         if (!checkPass) {
-            res.status(400).json({
-                code: 400,
+            res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
+                code: http_status_codes_1.StatusCodes.BAD_REQUEST,
                 message: "Mật khẩu không đúng!"
             });
             return;
         }
         const token = (0, generateToken_1.generateToken)(nhanvien["nvid"], res);
         delete nhanvien["matkhau"];
-        res.status(200).json({
-            code: 200,
+        res.status(http_status_codes_1.StatusCodes.OK).json({
+            code: http_status_codes_1.StatusCodes.OK,
             message: "Đăng nhập thành công!",
             data: Object.assign(Object.assign({}, nhanvien), { token })
         });
     }
     catch (err) {
         console.log('Error in login controller: ' + err.message);
-        res.status(500).json({ code: 500, message: 'Internal Server Error' });
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({ code: http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
     }
 });
 exports.login = login;
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         res.cookie('token', '', { maxAge: 0 });
-        res.status(200).json({ code: 200, message: 'Đăng xuất thành công' });
+        res.status(http_status_codes_1.StatusCodes.OK).json({ code: http_status_codes_1.StatusCodes.OK, message: 'Đăng xuất thành công' });
     }
     catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(500).json({ code: 500, message: 'Lỗi Server' });
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({ code: http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
     }
 });
 exports.logout = logout;
 const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.status(200).json({
-            code: 200,
+        res.status(http_status_codes_1.StatusCodes.OK).json({
+            code: http_status_codes_1.StatusCodes.OK,
             message: "Lấy thông tin thành công!",
             data: Object.assign({}, res.locals.user)
         });
     }
     catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(500).json({ code: 500, message: 'Lỗi Server' });
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({ code: http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
     }
 });
 exports.profile = profile;

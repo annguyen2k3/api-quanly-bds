@@ -3,7 +3,8 @@ const router: Router = Router()
 
 import * as controller from "../controllers/staff.controller"
 import * as authMiddleware from "../middleware/auth.middleware"
-import * as validateStaff from "../validates/staff.validate"
+import {validateData} from "../validates/staff.validate"
+import { staffSchema } from "../validates/staffSchema";
 
 
 router.get(
@@ -16,7 +17,7 @@ router.post(
     "/create", 
     authMiddleware.protectRoute,
     authMiddleware.isAdmin,
-    validateStaff.info,
+    validateData(staffSchema),
     controller.create)
 
 router.patch(

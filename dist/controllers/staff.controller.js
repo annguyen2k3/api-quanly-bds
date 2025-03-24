@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resetPassword = exports.create = exports.detail = void 0;
 const nhan_vien_model_1 = __importDefault(require("../models/nhan_vien.model"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const http_status_codes_1 = require("http-status-codes");
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = parseInt(req.params.nvid);
@@ -26,21 +27,21 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             raw: true
         });
         if (!nhanvien) {
-            res.status(400).json({
-                code: 400,
+            res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({
+                code: http_status_codes_1.StatusCodes.UNAUTHORIZED,
                 message: "Nhân viên không tồn tại."
             });
             return;
         }
-        res.status(200).json({
-            code: 200,
+        res.status(http_status_codes_1.StatusCodes.OK).json({
+            code: http_status_codes_1.StatusCodes.OK,
             message: "Lấy thông tin thành công!",
             data: Object.assign({}, nhanvien)
         });
     }
     catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(500).json({ code: 500, message: 'Lỗi Server' });
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({ code: http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
     }
 });
 exports.detail = detail;
@@ -59,14 +60,14 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             quyen: req.body.quyen,
         };
         yield nhan_vien_model_1.default.create(dataNv);
-        res.status(200).json({
-            code: 200,
+        res.status(http_status_codes_1.StatusCodes.OK).json({
+            code: http_status_codes_1.StatusCodes.OK,
             message: "Tạo thành công!"
         });
     }
     catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(400).json({ code: 400, message: 'Tạo thất bại! ' + error.message });
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({ code: http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
     }
 });
 exports.create = create;
@@ -75,15 +76,15 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const id = req.body.nvid;
         const newPass = req.body.newPassword;
         if (!id || !newPass) {
-            res.status(400).json({
-                code: 400,
+            res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
+                code: http_status_codes_1.StatusCodes.BAD_REQUEST,
                 message: "Thiếu thông tin!"
             });
             return;
         }
         if (newPass.length < 6) {
-            res.status(400).json({
-                code: 400,
+            res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
+                code: http_status_codes_1.StatusCodes.BAD_REQUEST,
                 message: "Mật khẩu tối thiểu 6 ký tự!"
             });
             return;
@@ -95,8 +96,8 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             raw: true
         });
         if (!nv) {
-            res.status(400).json({
-                code: 400,
+            res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({
+                code: http_status_codes_1.StatusCodes.UNAUTHORIZED,
                 message: "Mã nhân viên không tồn tại!"
             });
             return;
@@ -109,14 +110,14 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 nvid: id
             }
         });
-        res.status(200).json({
-            code: 200,
+        res.status(http_status_codes_1.StatusCodes.OK).json({
+            code: http_status_codes_1.StatusCodes.OK,
             message: "Đặt lại mật khẩu thành công!",
         });
     }
     catch (error) {
         console.log('Error in login controller: ' + error);
-        res.status(500).json({ code: 500, message: 'Internal Server Error' });
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({ code: http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
     }
 });
 exports.resetPassword = resetPassword;

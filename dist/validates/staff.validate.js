@@ -1,58 +1,35 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.info = void 0;
-const validator_1 = __importDefault(require("validator"));
-const info = (req, res, next) => {
-    try {
-        const taikhoan = req.body.taikhoan;
-        const matkhau = req.body.matkhau;
-        const tennv = req.body.tennv;
-        const sdt = req.body.sdt;
-        const diachi = req.body.diachi;
-        const ngaysinh = req.body.ngaysinh;
-        const gioitinh = req.body.gioitinh;
-        const email = req.body.email;
-        const quyen = req.body.quyen;
-        if (taikhoan && matkhau && tennv && sdt && diachi && ngaysinh && gioitinh != null && email && quyen != null) {
-            if (matkhau.length < 6) {
-                res.status(400).json({
-                    code: 400,
-                    message: "Mật khẩu ít nhất 6 ký tự!"
-                });
-                return;
-            }
-            if (sdt.toString().length != 9) {
-                res.status(400).json({
-                    code: 400,
-                    message: "Số điện thoại không hợp lệ!"
-                });
-                return;
-            }
-            if (!validator_1.default.isEmail(email)) {
-                res.status(400).json({
-                    code: 400,
-                    message: "Email không hợp lệ!"
-                });
-                return;
-            }
+exports.validateData = validateData;
+const zod_1 = require("zod");
+const http_status_codes_1 = require("http-status-codes");
+function validateData(schema) {
+    return (req, res, next) => {
+        try {
+            schema.parse(req.body);
             next();
         }
-        else {
-            res.status(400).json({
-                code: 400,
-                message: "Thông tin bị thiếu!"
-            });
+        catch (error) {
+            if (error instanceof zod_1.ZodError) {
+                const errorMessages = error.errors.map((issue) => {
+                    var _a;
+                    return ({
+                        [(_a = issue.path) === null || _a === void 0 ? void 0 : _a[0]]: issue.message
+                    });
+                });
+                res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
+                    code: http_status_codes_1.StatusCodes.BAD_REQUEST,
+                    message: "Thông tin không hợp lệ",
+                    errors: errorMessages
+                });
+            }
+            else {
+                console.log("ERR: " + error.message);
+                res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({
+                    code: http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR,
+                    message: 'Lỗi Server'
+                });
+            }
         }
-    }
-    catch (error) {
-        console.log("ERROR: " + error.message);
-        res.status(500).json({
-            code: 500,
-            message: "Lỗi Server!"
-        });
-    }
-};
-exports.info = info;
+    };
+}
