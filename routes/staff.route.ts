@@ -8,6 +8,12 @@ import { staffSchema } from "../validates/staffSchema";
 
 
 router.get(
+    "/list", 
+    authMiddleware.requireAuth,
+    authMiddleware.isAdmin,
+    controller.getList)
+
+router.get(
     "/detail/:nvid", 
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,

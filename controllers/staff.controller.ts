@@ -39,6 +39,30 @@ export const detail = async (req: Request, res: Response) => {
       }
 }
 
+// [GET] /staff/list
+export const getList = async (req: Request, res: Response) => {
+    try {
+        const list = await nhan_vien.findAll({
+            where: {
+                trangthai: 1
+            },
+            attributes: { exclude: ['matkhau'] },
+            raw: true
+        })
+
+        res.status(StatusCodes.OK).json({
+            code: StatusCodes.OK,
+            message: "Lấy thông tin thành công!",
+            data: [
+                ...list
+            ]
+        })
+      } catch (error) {
+        console.log('Error in logout controller', error.message);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
+      }
+}
+
 // [POST] /staff/create 
 export const create = async (req: Request, res: Response) => {
     try {
@@ -179,7 +203,6 @@ export const update = async (req: Request, res: Response) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
       }
 }
-
 
 // [PATCH] /auth/password-reset
 export const resetPassword = async (req: Request, res: Response) => {
