@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-
 export const staffSchema = z.object({
     taikhoan: z.string().min(1, 'Tài khoản không được để trống'),
     matkhau: z.string().min(6, 'Mật khẩu ít nhất 6 ký tự'),
@@ -15,4 +14,9 @@ export const staffSchema = z.object({
     quyen: z.number().refine((val) => val === 0 || val === 1, {
             message: 'Quyền không hợp lệ',
     }),
+    trangthai: z.number()
+                .optional()
+                .refine((val) => val === undefined || val === 0 || val === 1, {
+                        message: 'Trạng thái không hợp lệ',
+                }),
 })

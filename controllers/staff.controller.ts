@@ -3,6 +3,7 @@ import nhan_vien from "../models/nhan_vien.model";
 
 import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
+import { Op } from "sequelize";
 
 // [GET] /staff/detail/:nvId
 export const detail = async (req: Request, res: Response) => {
@@ -41,6 +42,33 @@ export const detail = async (req: Request, res: Response) => {
 // [POST] /staff/create 
 export const create = async (req: Request, res: Response) => {
     try {
+        const checkMail = await nhan_vien.findOne({
+            where: {
+                email: req.body.email
+            }
+        })
+
+        if(checkMail) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                code: StatusCodes.BAD_REQUEST,
+                message: "Email đã tồn tại"
+            })
+            return;
+        }
+
+        const checkTaikhoan = await nhan_vien.findOne({
+            where: {
+                taikhoan: req.body.taikhoan
+            }
+        })
+
+        if(checkTaikhoan) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                code: StatusCodes.BAD_REQUEST,
+                message: "Tài khoản đã tồn tại"
+            })
+            return;
+        }
 
         const passHash = await bcrypt.hashSync(req.body.matkhau, parseInt(process.env.SALT_ROUNDS))
 
@@ -67,6 +95,91 @@ export const create = async (req: Request, res: Response) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
       }
 }
+
+// [PATCH] /staff/update/:id
+export const update = async (req: Request, res: Response) => {
+    try {
+        const nvid = req.params.id;
+
+        const nv = await nhan_vien.findOne({
+            where: {
+                nvid: nvid
+            }
+        })
+
+        if(!nv) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                code: StatusCodes.BAD_REQUEST,
+                message: "Mã nhân viên không tồn tại"
+            })
+            return;
+        }
+
+        const checkMail = await nhan_vien.findOne({
+            where: {
+                nvid: {
+                    [Op.ne]: nvid
+                },
+                email: req.body.email
+            }
+        })
+
+        if(checkMail) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                code: StatusCodes.BAD_REQUEST,
+                message: "Email đã tồn tại"
+            })
+            return;
+        }
+
+        const checkTaikhoan = await nhan_vien.findOne({
+            where: {
+                nvid: {
+                    [Op.ne]: nvid
+                },
+                taikhoan: req.body.taikhoan
+            }
+        })
+
+        if(checkTaikhoan) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                code: StatusCodes.BAD_REQUEST,
+                message: "Tài khoản đã tồn tại"
+            })
+            return;
+        }
+
+        const passHash = await bcrypt.hashSync(req.body.matkhau, parseInt(process.env.SALT_ROUNDS))
+
+        const dataNv = {
+            taikhoan: req.body.taikhoan,
+            matkhau: passHash ,
+            tennv: req.body.tennv,
+            sdt: req.body.sdt,
+            diachi: req.body.diachi,
+            ngaysinh: req.body.ngaysinh,
+            gioitinh: req.body.gioitinh,
+            email: req.body.email,
+            quyen: req.body.quyen,
+            trangthai: req.body.trangthai ?? nv["trangthai"]
+        }
+
+        await nhan_vien.update(dataNv, {
+            where: {
+                nvid: nvid
+            }
+        })
+
+        res.status(StatusCodes.OK).json({
+            code: StatusCodes.OK,
+            message: "Cập nhật thành công!"
+        })
+      } catch (error) {
+        console.log('Error in logout controller', error.message);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
+      }
+}
+
 
 // [PATCH] /auth/password-reset
 export const resetPassword = async (req: Request, res: Response) => {

@@ -6,7 +6,7 @@ const router: Router = Router()
 
 router.post("/login", controller.login )
 
-router.get("/profile", authMiddleware.protectRoute, controller.profile )
+router.get("/profile", authMiddleware.requireAuth, controller.profile )
 
 router.get("/logout", controller.logout)
 
