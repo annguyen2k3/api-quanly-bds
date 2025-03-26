@@ -6,8 +6,6 @@ const router: Router = Router()
 
 router.post("/login", controller.login )
 
-router.get("/profile", authMiddleware.requireAuth, controller.profile )
-
 router.post("/logout", controller.logout)
 
 export const authRouter: Router = router

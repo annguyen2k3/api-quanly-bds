@@ -4,7 +4,7 @@ const router: Router = Router()
 import * as controller from "../controllers/staff.controller"
 import * as authMiddleware from "../middleware/auth.middleware"
 import {validateData} from "../validates/validate"
-import { staffSchema } from "../validates/staffSchema";
+import * as staffSchema from "../validates/staffSchema.validate";
 
 
 router.get(
@@ -23,14 +23,14 @@ router.post(
     "/create", 
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
-    validateData(staffSchema),
+    validateData(staffSchema.create),
     controller.create)
 
-router.patch(
+router.put(
     "/update/:id", 
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
-    validateData(staffSchema),
+    validateData(staffSchema.updateAdmin),
     controller.update)
 
 router.patch(

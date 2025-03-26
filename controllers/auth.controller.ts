@@ -79,18 +79,4 @@ export const logout = async (req: Request, res: Response) => {
       }
 }
 
-// [GET] /auth/profile
-export const profile = async (req: Request, res: Response) => {
-    try {
-        res.status(StatusCodes.OK).json({
-            code: StatusCodes.OK,
-            message: "Lấy thông tin thành công!",
-            data: {
-                ...res.locals.user
-            }
-        })
-      } catch (error) {
-        console.log('Error in logout controller', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
-      }
-}
+

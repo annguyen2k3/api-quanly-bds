@@ -29,7 +29,6 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
             where: {
                 nvid: id
             },
-            attributes: { exclude: ['matkhau'] },
             raw: true
         })
 

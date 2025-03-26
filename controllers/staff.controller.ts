@@ -120,7 +120,7 @@ export const create = async (req: Request, res: Response) => {
       }
 }
 
-// [PATCH] /staff/update/:id
+// [PUT] /staff/update/:id
 export const update = async (req: Request, res: Response) => {
     try {
         const nvid = req.params.id;
@@ -173,22 +173,7 @@ export const update = async (req: Request, res: Response) => {
             return;
         }
 
-        const passHash = await bcrypt.hashSync(req.body.matkhau, parseInt(process.env.SALT_ROUNDS))
-
-        const dataNv = {
-            taikhoan: req.body.taikhoan,
-            matkhau: passHash ,
-            tennv: req.body.tennv,
-            sdt: req.body.sdt,
-            diachi: req.body.diachi,
-            ngaysinh: req.body.ngaysinh,
-            gioitinh: req.body.gioitinh,
-            email: req.body.email,
-            quyen: req.body.quyen,
-            trangthai: req.body.trangthai ?? nv["trangthai"]
-        }
-
-        await nhan_vien.update(dataNv, {
+        await nhan_vien.update(req.body, {
             where: {
                 nvid: nvid
             }
