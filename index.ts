@@ -17,10 +17,19 @@ const port: number = parseInt(process.env.PORT ) || 3030
 app.use(bodyParser.json())
 
 // CORS
+const allowedOrigins = ['http://localhost:5173', 'https://rs-fe.vercel.app'];
+
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
-}))
+  origin: (origin: string | undefined, callback: cors.CorsCallback) => {
+    if (allowedOrigins.includes(origin as string)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'), false);
+    }
+  },
+  credentials: true,
+}));
+
 
 // Sử dụng cookie-parser
 app.use(cookieParser());
