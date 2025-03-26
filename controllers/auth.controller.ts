@@ -68,7 +68,7 @@ export const login = async (req: Request, res: Response) => {
     }
 }
 
-// [GET] /auth/logout
+// [POST] /auth/logout
 export const logout = async (req: Request, res: Response) => {
     try {
         res.cookie('token', '', { maxAge: 0 });

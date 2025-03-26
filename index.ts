@@ -17,7 +17,10 @@ const port: number = parseInt(process.env.PORT ) || 3030
 app.use(bodyParser.json())
 
 // CORS
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}))
 
 // Sử dụng cookie-parser
 app.use(cookieParser());

@@ -13,8 +13,8 @@ export function validateData(schema: z.ZodObject<any, any>) {
                 const errorMessages = error.errors.map((issue: any) => ({
                     [issue.path?.[0]]: issue.message
                 }))
-                res.status(StatusCodes.BAD_REQUEST).json({ 
-                    code: StatusCodes.BAD_REQUEST,
+                res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ 
+                    code: StatusCodes.UNPROCESSABLE_ENTITY,
                     message: "Thông tin không hợp lệ",
                     errors: errorMessages
                 });
