@@ -1,16 +1,16 @@
 import { Request, Response } from "express";
-import nhan_vien from "../models/nhan_vien.model";
+import { nhan_vien, NhanVien} from "../models/nhan_vien.model";
 
 import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 
 // [GET] /staff/detail/:nvId
 export const detail = async (req: Request, res: Response) => {
     try {
         const id =  parseInt(req.params.nvid);
 
-        const nhanvien = await nhan_vien.findOne({
+        const nhanvien: NhanVien = await nhan_vien.findOne({
             where: {
                 nvid: id
             },

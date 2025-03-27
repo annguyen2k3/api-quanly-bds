@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import nhan_vien from "../models/nhan_vien.model";
+import { nhan_vien, NhanVien} from "../models/nhan_vien.model";
 import { generateToken } from "../helper/generateToken";
 import bcrypt from "bcryptjs";
 import { StatusCodes } from 'http-status-codes';
