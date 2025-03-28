@@ -23,7 +23,7 @@ router.post(
     "/create", 
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
-    validateData(staffSchema.create),
+    validateData(staffSchema.staffSchemaBase),
     controller.create)
 
 router.put(
@@ -33,11 +33,5 @@ router.put(
     validateData(staffSchema.updateAdmin),
     controller.update)
 
-router.patch(
-    "/password-reset", 
-    authMiddleware.requireAuth, 
-    authMiddleware.isAdmin, 
-    controller.resetPassword 
-)
 
 export const staffRouter: Router = router

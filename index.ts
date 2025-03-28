@@ -1,7 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from "express";
 import sequelize from "./config/database";
 import dotenv from "dotenv";
-import bodyParser = require("body-parser");
+import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors"
 

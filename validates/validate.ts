@@ -10,15 +10,25 @@ export function validateData(schema: z.ZodObject<any, any>) {
             next();
         } catch (error) {
             if (error instanceof ZodError) {
-                const errorMessages = error.errors.map((issue: any) => ({
-                    [issue.path?.[0]]: issue.message
-                }))
+                // Nếu có lỗi validation, khởi tạo object để chứa thông tin lỗi
+                const errorMessages: { [key: string]: string } = {};
+
+               // Lặp qua từng lỗi và lấy thông tin field và thông điệp lỗi
+                error.errors.forEach((issue) => {
+                    const field = issue.path?.[0];
+                    if (field) {
+                    errorMessages[field] = issue.message;
+                    }
+                });
+
+                 // Trả về thông báo lỗi
                 res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ 
                     code: StatusCodes.UNPROCESSABLE_ENTITY,
                     message: "Thông tin không hợp lệ",
                     errors: errorMessages
                 });
             } else {
+                // Nếu không phải lỗi ZodError, log lỗi và trả về mã lỗi server
                 console.log("ERR: " + error.message)
                 res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
                     code: StatusCodes.INTERNAL_SERVER_ERROR,

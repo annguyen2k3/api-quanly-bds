@@ -30,8 +30,6 @@ export const updateProfile = async (req: Request, res: Response) => {
     try {
         const user = res.locals.user;
 
-        console.log(user)
-
         const checkMail = await nhan_vien.findOne({
             where: {
                 nvid: {
@@ -42,9 +40,12 @@ export const updateProfile = async (req: Request, res: Response) => {
         })
 
         if(checkMail) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Email đã tồn tại"
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: "Thông tin không hợp lệ",
+                errors: {
+                    email: "Email đã tồn tại"
+                }
             })
             return;
         }
@@ -59,12 +60,24 @@ export const updateProfile = async (req: Request, res: Response) => {
         })
 
         if(checkTaikhoan) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Tài khoản đã tồn tại"
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: "Thông tin không hợp lệ",
+                errors: {
+                    taikhoan: "Tài khoản đã tồn tại"
+                }
             })
             return;
         }
+
+         if(req.body.matkhau) {
+            req.body.matkhau = await bcrypt.hashSync(req.body.matkhau, parseInt(process.env.SALT_ROUNDS))
+        } else {
+            delete req.body.matkhau
+        }
+
+        delete req.body.quyen;
+        delete req.body.trangthai;
 
         await nhan_vien.update(req.body, {
             where: {

@@ -173,6 +173,12 @@ export const update = async (req: Request, res: Response) => {
             return;
         }
 
+        if(req.body.matkhau) {
+            req.body.matkhau = await bcrypt.hashSync(req.body.matkhau, parseInt(process.env.SALT_ROUNDS))
+        } else {
+            delete req.body.matkhau
+        }
+
         await nhan_vien.update(req.body, {
             where: {
                 nvid: nvid
@@ -187,61 +193,4 @@ export const update = async (req: Request, res: Response) => {
         console.log('Error in logout controller', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
       }
-}
-
-// [PATCH] /auth/password-reset
-export const resetPassword = async (req: Request, res: Response) => {
-    try {
-        const id = req.body.nvid;
-        const newPass = req.body.newPassword
-
-        if(!id || !newPass) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Thiếu thông tin!"
-            })
-            return;
-        }
-
-        if(newPass.length < 6) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Mật khẩu tối thiểu 6 ký tự!"
-            })
-            return;
-        }
-
-        const nv = await nhan_vien.findOne({
-            where: {
-                nvid: id
-            },
-            raw: true
-        })
-
-        if(!nv) {
-            res.status(StatusCodes.UNAUTHORIZED).json({
-                code: StatusCodes.UNAUTHORIZED,
-                message: "Mã nhân viên không tồn tại!"
-            })
-            return;
-        }
-
-        const hashPass = bcrypt.hashSync(newPass, 10)
-
-        await nhan_vien.update({
-            matkhau: hashPass
-        }, {
-            where: {
-                nvid: id
-            }
-        })
-
-        res.status(StatusCodes.OK).json({
-            code: StatusCodes.OK,
-            message: "Đặt lại mật khẩu thành công!",
-        })
-    } catch (error) {
-        console.log('Error in login controller: ' +  error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
-    }
 }
