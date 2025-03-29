@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { z, ZodError } from 'zod';
 import { StatusCodes } from 'http-status-codes';
+import { CommonMess } from "../constants/messages.constant";
 
 
 export function validateData(schema: z.ZodObject<any, any>) {
@@ -24,7 +25,7 @@ export function validateData(schema: z.ZodObject<any, any>) {
                  // Trả về thông báo lỗi
                 res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ 
                     code: StatusCodes.UNPROCESSABLE_ENTITY,
-                    message: "Thông tin không hợp lệ",
+                    message: CommonMess.INVALID_DATA,
                     errors: errorMessages
                 });
             } else {
@@ -32,7 +33,7 @@ export function validateData(schema: z.ZodObject<any, any>) {
                 console.log("ERR: " + error.message)
                 res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
                     code: StatusCodes.INTERNAL_SERVER_ERROR,
-                    message: 'Lỗi Server'
+                    message: CommonMess.SERVER_ERROR
                 });
             }
       }

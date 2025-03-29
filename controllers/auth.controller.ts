@@ -3,20 +3,13 @@ import { nhan_vien, NhanVien} from "../models/nhan_vien.model";
 import { generateToken } from "../helper/generateToken";
 import bcrypt from "bcryptjs";
 import { StatusCodes } from 'http-status-codes';
+import { AuthMess, CommonMess, StaffMess } from "../constants/messages.constant";
 
 // [POST] /auth/login
 export const login = async (req: Request, res: Response) => {
     try {
         const taikhoan = req.body.taikhoan;
         const matkhau = req.body.matkhau;
-        
-        if(!taikhoan || !matkhau) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                    code: StatusCodes.BAD_REQUEST,
-                    message: "Thông tin bị thiếu!"
-            })
-            return;
-        }
 
         const nhanvien = await nhan_vien.findOne({
             where: {
@@ -28,15 +21,10 @@ export const login = async (req: Request, res: Response) => {
         if(!nhanvien) {
             res.status(StatusCodes.UNAUTHORIZED).json({
                 code: StatusCodes.UNAUTHORIZED,
-                message: "Tài khoản không tồn tại!"
-            })
-            return;
-        }
-
-        if(nhanvien["trangthai"] === 0) {
-            res.status(StatusCodes.UNAUTHORIZED).json({
-                code: StatusCodes.UNAUTHORIZED,
-                message: "Tài khoản đã bị khoá!"
+                message: CommonMess.INVALID_DATA,
+                errors: {
+                    taikhoan: AuthMess.ACCOUNT_NOT_EXITS
+                }
             })
             return;
         }
@@ -44,9 +32,20 @@ export const login = async (req: Request, res: Response) => {
         const checkPass =  bcrypt.compareSync(matkhau, nhanvien["matkhau"])
 
         if(!checkPass) {
-            res.status(StatusCodes.BAD_REQUEST).json({
+            res.status(StatusCodes.UNAUTHORIZED).json({
                 code: StatusCodes.BAD_REQUEST,
-                message: "Mật khẩu không đúng!"
+                message: CommonMess.INVALID_DATA,
+                errors: {
+                    matkhau: AuthMess.PASSWORD_INCORRECT
+                }
+            })
+            return;
+        }
+
+        if(nhanvien["trangthai"] === 0) {
+            res.status(StatusCodes.UNAUTHORIZED).json({
+                code: StatusCodes.UNAUTHORIZED,
+                message: AuthMess.ACCOUNT_INACTIVE
             })
             return;
         }
@@ -56,7 +55,7 @@ export const login = async (req: Request, res: Response) => {
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: "Đăng nhập thành công!",
+            message: AuthMess.LOGIN_SUCCESS,
             data: {
                 ...nhanvien,
                 token
@@ -64,7 +63,7 @@ export const login = async (req: Request, res: Response) => {
         })
     } catch(err) {
         console.log('Error in login controller: ' +  err.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
     }
 }
 
@@ -72,10 +71,10 @@ export const login = async (req: Request, res: Response) => {
 export const logout = async (req: Request, res: Response) => {
     try {
         res.cookie('token', '', { maxAge: 0 });
-        res.status(StatusCodes.OK).json({code: StatusCodes.OK, message: 'Đăng xuất thành công' });
+        res.status(StatusCodes.OK).json({code: StatusCodes.OK, message: AuthMess.LOGOUT_SUCCESS });
       } catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }
 

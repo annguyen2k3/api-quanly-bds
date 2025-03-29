@@ -1,15 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { nhan_vien, NhanVien} from "../models/nhan_vien.model";
+import { StatusCodes } from "http-status-codes";
+import { AuthMess, CommonMess } from "../constants/messages.constant";
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.cookies.token;
         if (!token) {
-             res.status(401)
+             res.status(StatusCodes.UNAUTHORIZED)
                 .json({ 
-                    code: 401,
-                    message: "Vui lòng đăng nhập!"
+                    code: StatusCodes.UNAUTHORIZED,
+                    message: AuthMess.AUTH_REQUIRED
                 });
             return;
         }
@@ -17,9 +19,9 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         if(!decoded) {
-            res.status(401).json({
-                code: 401,
-                message: "Token không hợp lệ!"
+            res.status(StatusCodes.UNAUTHORIZED).json({
+                code: StatusCodes.UNAUTHORIZED,
+                message: AuthMess.TOKEN_INVALID
             })
         }
 
@@ -33,9 +35,9 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         })
 
         if(user["trangthai"] === 0 ) {
-            res.status(401).json({ 
-                code: 401,
-                message: "Tài khoản đã bị khoá!" 
+            res.status(StatusCodes.UNAUTHORIZED).json({ 
+                code: StatusCodes.UNAUTHORIZED,
+                message: AuthMess.ACCOUNT_INACTIVE 
             });
         }
 
@@ -44,9 +46,9 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         next();
     } catch (error) {
         console.log("Error in protectRoute middleware: ", error.message);
-        res.status(500).json({ 
-            code: 500,
-            message: "Token không hợp lệ" 
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            message: CommonMess.SERVER_ERROR
         });
     }
 };
@@ -54,9 +56,9 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 export const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if(res.locals.user.quyen !== 0) {
-            res.status(401).json({
-                code: 401,
-                message: "Không có quyền truy cập"
+            res.status(StatusCodes.UNAUTHORIZED).json({
+                code: StatusCodes.UNAUTHORIZED,
+                message: AuthMess.ROLE_NOT_ACCESS
             })
             return;
         }
@@ -64,9 +66,9 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
         next();
     } catch (error) {
         console.log("Error in protectRoute middleware: ", error.message);
-        res.status(500).json({ 
-            code: 500,
-            message: "Lỗi Server!" 
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            message: CommonMess.SERVER_ERROR 
         });
     }
 }
@@ -74,9 +76,9 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
 export const isNhanvien = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if(res.locals.user.quyen !== 1) {
-            res.status(401).json({
-                code: 401,
-                message: "Không có quyền truy cập"
+            res.status(StatusCodes.UNAUTHORIZED).json({
+                code: StatusCodes.UNAUTHORIZED,
+                message: AuthMess.ROLE_NOT_ACCESS
             })
             return;
         }
@@ -84,9 +86,9 @@ export const isNhanvien = async (req: Request, res: Response, next: NextFunction
         next();
     } catch (error) {
         console.log("Error in protectRoute middleware: ", error.message);
-        res.status(500).json({ 
-            code: 500,
-            message: "Lỗi Server!" 
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            message: CommonMess.SERVER_ERROR 
         });
     }
 }

@@ -4,6 +4,7 @@ import { nhan_vien, NhanVien} from "../models/nhan_vien.model";
 import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
 import { Op, Sequelize } from "sequelize";
+import { AuthMess, CommonMess, StaffMess } from "../constants/messages.constant";
 
 // [GET] /staff/detail/:nvId
 export const detail = async (req: Request, res: Response) => {
@@ -19,23 +20,23 @@ export const detail = async (req: Request, res: Response) => {
         })
 
         if(!nhanvien) {
-            res.status(StatusCodes.UNAUTHORIZED).json({
-                code: StatusCodes.UNAUTHORIZED,
-                message: "Nhân viên không tồn tại."
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: StaffMess.ID_NOT_EXITS
             })
             return;
         }
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: "Lấy thông tin thành công!",
+            message: CommonMess.GET_SUCCESS,
             data: {
                 ...nhanvien
             }
         })
       } catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }
 
@@ -52,14 +53,14 @@ export const getList = async (req: Request, res: Response) => {
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: "Lấy thông tin thành công!",
+            message: CommonMess.GET_SUCCESS,
             data: [
                 ...list
             ]
         })
       } catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }
 
@@ -73,9 +74,12 @@ export const create = async (req: Request, res: Response) => {
         })
 
         if(checkMail) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Email đã tồn tại"
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: StaffMess.EMAIL_EXITS,
+                errors: {
+                    email: StaffMess.EMAIL_EXITS
+                }
             })
             return;
         }
@@ -87,9 +91,12 @@ export const create = async (req: Request, res: Response) => {
         })
 
         if(checkTaikhoan) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Tài khoản đã tồn tại"
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: AuthMess.ACCOUNT_EXITS,
+                errors: {
+                    taikhoan: AuthMess.ACCOUNT_EXITS
+                }
             })
             return;
         }
@@ -112,7 +119,7 @@ export const create = async (req: Request, res: Response) => {
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: "Tạo thành công!"
+            message: CommonMess.CREATE_SUCCESS
         })
       } catch (error) {
         console.log('Error in logout controller', error.message);
@@ -132,9 +139,12 @@ export const update = async (req: Request, res: Response) => {
         })
 
         if(!nv) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Mã nhân viên không tồn tại"
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: StaffMess.ID_NOT_EXITS,
+                errors: {
+                    nvid: StaffMess.ID_NOT_EXITS
+                }
             })
             return;
         }
@@ -149,9 +159,12 @@ export const update = async (req: Request, res: Response) => {
         })
 
         if(checkMail) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Email đã tồn tại"
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: StaffMess.EMAIL_EXITS,
+                errors: {
+                    email: StaffMess.EMAIL_EXITS
+                }
             })
             return;
         }
@@ -166,9 +179,12 @@ export const update = async (req: Request, res: Response) => {
         })
 
         if(checkTaikhoan) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Tài khoản đã tồn tại"
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: AuthMess.ACCOUNT_EXITS,
+                errors: {
+                    taikhoan: AuthMess.ACCOUNT_EXITS
+                }
             })
             return;
         }
@@ -187,7 +203,7 @@ export const update = async (req: Request, res: Response) => {
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: "Cập nhật thành công!"
+            message: CommonMess.UPDATE_SUCCESS
         })
       } catch (error) {
         console.log('Error in logout controller', error.message);

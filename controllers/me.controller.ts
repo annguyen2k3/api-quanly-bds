@@ -4,6 +4,7 @@ import { nhan_vien, NhanVien} from "../models/nhan_vien.model";
 import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
 import { Op } from "sequelize";
+import { AuthMess, CommonMess, StaffMess } from "../constants/messages.constant";
 
 // [GET] /me
 export const profile = async (req: Request, res: Response) => {
@@ -14,14 +15,14 @@ export const profile = async (req: Request, res: Response) => {
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: "Lấy thông tin thành công!",
+            message: CommonMess.GET_SUCCESS,
             data: {
                 ...user
             }
         })
       } catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }
 
@@ -42,9 +43,9 @@ export const updateProfile = async (req: Request, res: Response) => {
         if(checkMail) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: "Thông tin không hợp lệ",
+                message: CommonMess.INVALID_DATA,
                 errors: {
-                    email: "Email đã tồn tại"
+                    email: StaffMess.EMAIL_EXITS
                 }
             })
             return;
@@ -62,9 +63,9 @@ export const updateProfile = async (req: Request, res: Response) => {
         if(checkTaikhoan) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: "Thông tin không hợp lệ",
+                message: CommonMess.INVALID_DATA,
                 errors: {
-                    taikhoan: "Tài khoản đã tồn tại"
+                    taikhoan: AuthMess.ACCOUNT_EXITS
                 }
             })
             return;
@@ -87,11 +88,11 @@ export const updateProfile = async (req: Request, res: Response) => {
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: "Cập nhật thành công!"
+            message: CommonMess.UPDATE_SUCCESS
         })
       } catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }
 
@@ -105,9 +106,12 @@ export const changePass = async (req: Request, res: Response) => {
         const checkPass =  bcrypt.compareSync(req.body.matkhaucu, user["matkhau"])
         
         if(!checkPass) {
-            res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                message: "Mật khẩu không đúng!"
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: AuthMess.PASSWORD_INCORRECT,
+                errors: {
+                    matkhau: AuthMess.PASSWORD_INCORRECT
+                }
             })
             return;
         }
@@ -128,7 +132,7 @@ export const changePass = async (req: Request, res: Response) => {
         })
       } catch (error) {
         console.log('Error in logout controller', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }
 
