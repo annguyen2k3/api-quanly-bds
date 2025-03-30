@@ -46,16 +46,23 @@ export const getList = async (req: Request, res: Response) => {
         const whereObject = {}
 
         // Find Status
-        const status = parseInt(req.query.status as string, 10);
-        if ([0, 1].includes(status)) {
-          whereObject["trangthai"] = status;
+        let status: number;
+        const rawStatus = req.query.status;
+
+        if (rawStatus === undefined || rawStatus === "") {
+            status = 1;
         } else {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: StaffMess.STATUS_INVALID
-            })
-            return;
+            const parsedStatus = parseInt(rawStatus as string, 10);
+            if (isNaN(parsedStatus) || ![0,1].includes(parsedStatus)) {
+                res.status(StatusCodes.BAD_REQUEST).json({
+                    code: StatusCodes.BAD_REQUEST,
+                    message: StaffMess.STATUS_INVALID
+                });
+                return;
+            }
+            status = parsedStatus;
         }
+        whereObject["trangthai"] = status;
         // End Find Status
 
         // Pagination
