@@ -99,9 +99,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 // [PUT] /me/change-pass
 export const changePass = async (req: Request, res: Response) => {
     try {
-        const user = res.locals.user;
-
-        console.log(user)
+        const user: NhanVien = res.locals.user;
 
         const checkPass =  bcrypt.compareSync(req.body.matkhaucu, user["matkhau"])
         

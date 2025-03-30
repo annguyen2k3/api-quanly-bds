@@ -43,20 +43,40 @@ export const detail = async (req: Request, res: Response) => {
 // [GET] /staff/list
 export const getList = async (req: Request, res: Response) => {
     try {
-        const list = await nhan_vien.findAll({
-            where: {
-                trangthai: 1
-            },
+        const whereObject = {}
+
+        // Find Status
+        const rawStatus = parseInt(req.query.status as string, 10);
+        let status: number = isNaN(rawStatus) ? 1 : rawStatus;
+        if (status === 0 || status === 1) {
+            whereObject["trangthai"] = status;
+        }
+        // End Find Status
+
+        // Pagination
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const offset = (page - 1) * limit;
+        // End Pagination
+
+        const { rows, count } = await nhan_vien.findAndCountAll({
+            where: whereObject,
             attributes: { exclude: ['matkhau'] },
+            limit,
+            offset,
             raw: true
-        })
+        });
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
             message: CommonMess.GET_SUCCESS,
-            data: [
-                ...list
-            ]
+            data: rows,
+            pagination: {
+                currentPage: page,
+                pageSize: limit,
+                countRecord: count,
+                totalPage: Math.ceil(count/limit)
+            }
         })
       } catch (error) {
         console.log('Error in logout controller', error.message);
