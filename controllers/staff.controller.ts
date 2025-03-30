@@ -46,10 +46,15 @@ export const getList = async (req: Request, res: Response) => {
         const whereObject = {}
 
         // Find Status
-        const rawStatus = parseInt(req.query.status as string, 10);
-        let status: number = isNaN(rawStatus) ? 1 : rawStatus;
-        if (status === 0 || status === 1) {
-            whereObject["trangthai"] = status;
+        const status = parseInt(req.query.status as string, 10);
+        if ([0, 1].includes(status)) {
+          whereObject["trangthai"] = status;
+        } else {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: StaffMess.STATUS_INVALID
+            })
+            return;
         }
         // End Find Status
 
