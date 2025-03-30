@@ -25,6 +25,16 @@ export const StaffMess = {
   STATUS_INVALID: 'Trạng thái không hợp lệ'
 } as const;
 
+export const CustomerMess = {
+  ...InfoPersonalMess,
+  IDSTAFF_REQUIRED: 'Yêu cầu mã nhân viên',
+  ID_NOT_EXITS: 'Mã khách hàng không tồn tại',
+  CMND_INVALID: 'CMND không hợp lệ',
+  CMND_EXITS: 'CMND đã tồn tại',
+  STATUS_INVALID: 'Trạng thái không hợp lệ',
+  TYPE_INVALID: 'Loại khách hàng không hợp lệ'
+} as const;
+
 export const AuthMess = {
   AUTH_REQUIRED: 'Vui lòng đăng nhập',
   TOKEN_INVALID: 'Token không hợp lệ',

@@ -2,6 +2,7 @@ import { Express , Request, Response, Router} from "express"
 import { authRouter } from "./auth.route"
 import { staffRouter } from "./staff.route"
 import { meRouter } from "./me.route"
+import { customerRouter } from "./customer.route"
 
 const routers = (app: Express): void => {
     
@@ -14,6 +15,8 @@ const routers = (app: Express): void => {
     app.use("/me", meRouter)
 
     app.use("/staff", staffRouter)
+
+    app.use("/customer", customerRouter)
 
 }
 

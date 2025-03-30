@@ -1,49 +1,11 @@
 import { Request, Response } from "express";
-import { nhan_vien, NhanVien} from "../models/nhan_vien.model";
-
-import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
-import { Op, Sequelize } from "sequelize";
-import { AuthMess, CommonMess, StaffMess } from "../constants/messages.constant";
 
-// [GET] /staff/detail/:nvId
-export const detail = async (req: Request, res: Response) => {
-    try {
-        const id =  parseInt(req.params.nvid);
+import { CommonMess, CustomerMess } from "../constants/messages.constant";
+import { khach_hang, KhachHang, KhachHangCreationAttributes } from "../models/khach_hang.model";
+import { Op } from "sequelize";
 
-        const nhanvien: NhanVien = await nhan_vien.findOne({
-            where: {
-                nvid: id
-            },
-            attributes: { exclude: ['matkhau'] },
-            raw: true
-        })
-
-        if(!nhanvien) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: StaffMess.ID_NOT_EXITS,
-                errors: {
-                    nvid: StaffMess.ID_NOT_EXITS
-                }
-            })
-            return;
-        }
-
-        res.status(StatusCodes.OK).json({
-            code: StatusCodes.OK,
-            message: CommonMess.GET_SUCCESS,
-            data: {
-                ...nhanvien
-            }
-        })
-      } catch (error) {
-        console.log('Error in logout controller', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
-      }
-}
-
-// [GET] /staff/list
+// [GET] /customer/list
 export const getList = async (req: Request, res: Response) => {
     try {
         const whereObject = {}
@@ -54,12 +16,12 @@ export const getList = async (req: Request, res: Response) => {
 
         if (rawStatus === undefined || rawStatus === "") {
             status = 1;
-        } else {
+        }  else {
             const parsedStatus = parseInt(rawStatus as string, 10);
             if (isNaN(parsedStatus) || ![0,1].includes(parsedStatus)) {
                 res.status(StatusCodes.BAD_REQUEST).json({
                     code: StatusCodes.BAD_REQUEST,
-                    message: StaffMess.STATUS_INVALID
+                    message: CustomerMess.STATUS_INVALID
                 });
                 return;
             }
@@ -74,9 +36,8 @@ export const getList = async (req: Request, res: Response) => {
         const offset = (page - 1) * limit;
         // End Pagination
 
-        const { rows, count } = await nhan_vien.findAndCountAll({
+        const { rows, count } = await khach_hang.findAndCountAll({
             where: whereObject,
-            attributes: { exclude: ['matkhau'] },
             limit,
             offset,
             raw: true
@@ -94,100 +55,162 @@ export const getList = async (req: Request, res: Response) => {
             }
         })
       } catch (error) {
-        console.log('Error in logout controller', error.message);
+        console.log('Error in get list customer controller: ', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }
 
-// [POST] /staff/create 
+// [GET] /customer/detail/:khid
+export const detail = async (req: Request, res: Response) => {
+    try {
+        const id =  parseInt(req.params.khid);
+
+        const khachhang: KhachHang = await khach_hang.findOne({
+            where: {
+                khid: id
+            },
+            raw: true
+        })
+
+        if(!khachhang) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: CustomerMess.ID_NOT_EXITS,
+                errors: {
+                    khid: CustomerMess.ID_NOT_EXITS
+                }
+            })
+            return;
+        }
+
+        res.status(StatusCodes.OK).json({
+            code: StatusCodes.OK,
+            message: CommonMess.GET_SUCCESS,
+            data: khachhang
+        })
+      } catch (error) {
+        console.log('ErrorController Detail Customer: ', error.message);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
+      }
+}
+
+// [POST] /customer/create 
 export const create = async (req: Request, res: Response) => {
     try {
-        const checkMail = await nhan_vien.findOne({
+        // Check exits CMND
+        const checkCMND = await khach_hang.findOne({
+            where: {
+                cmnd: req.body.cmnd
+            }
+        })
+        if(checkCMND) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: CustomerMess.CMND_EXITS,
+                errors: {
+                    cmnd: CustomerMess.CMND_EXITS
+                }
+            })
+            return;
+        }
+        // End Check exits CMND
+
+        // Check Exits Email
+        const checkEmail = await khach_hang.findOne({
             where: {
                 email: req.body.email
             }
         })
-
-        if(checkMail) {
+        if(checkEmail) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: StaffMess.EMAIL_EXITS,
+                message: CustomerMess.EMAIL_EXITS,
                 errors: {
-                    email: StaffMess.EMAIL_EXITS
+                    email: CustomerMess.EMAIL_EXITS
                 }
             })
             return;
         }
+        // End Check Exits Email
 
-        const checkTaikhoan = await nhan_vien.findOne({
-            where: {
-                taikhoan: req.body.taikhoan
-            }
-        })
-
-        if(checkTaikhoan) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: AuthMess.ACCOUNT_EXITS,
-                errors: {
-                    taikhoan: AuthMess.ACCOUNT_EXITS
-                }
-            })
-            return;
-        }
-
-        const passHash = await bcrypt.hashSync(req.body.matkhau, parseInt(process.env.SALT_ROUNDS))
-
-        const dataNv = {
-            taikhoan: req.body.taikhoan,
-            matkhau: passHash ,
-            tennv: req.body.tennv,
-            sdt: req.body.sdt,
+        let data: KhachHangCreationAttributes = {
+            nvid: res.locals.user.nvid,
+            hoten: req.body.hoten,
             diachi: req.body.diachi,
+            diachitt: req.body.diachitt,
+            cmnd: req.body.cmnd,
             ngaysinh: req.body.ngaysinh,
+            sdt: req.body.sdt,
             gioitinh: req.body.gioitinh,
             email: req.body.email,
-            quyen: req.body.quyen,
+            loaikh: req.body.loaikh,
+            mota: req.body.mota,
         }
 
-        await nhan_vien.create(dataNv)
+        const kh = await khach_hang.create(data);
+
+        console.log(kh)
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: CommonMess.CREATE_SUCCESS
+            message: CommonMess.CREATE_SUCCESS,
+            data: kh.dataValues
         })
       } catch (error) {
-        console.log('Error in logout controller', error.message);
+        console.log('Error in create customer controller: ', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
       }
 }
 
-// [PUT] /staff/update/:id
+// [PUT] /customer/update/:khid
 export const update = async (req: Request, res: Response) => {
     try {
-        const nvid = req.params.id;
+        const khid = req.params.khid;
 
-        const nv = await nhan_vien.findOne({
+        const kh = await khach_hang.findOne({
             where: {
-                nvid: nvid
+                khid: khid
             }
         })
 
-        if(!nv) {
+        if(!kh) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: StaffMess.ID_NOT_EXITS,
+                message: CustomerMess.ID_NOT_EXITS,
                 errors: {
-                    nvid: StaffMess.ID_NOT_EXITS
+                    khid: CustomerMess.ID_NOT_EXITS
                 }
             })
             return;
         }
 
-        const checkMail = await nhan_vien.findOne({
+        // Check Exits CMND
+        const checkCMND = await khach_hang.findOne({
             where: {
-                nvid: {
-                    [Op.ne]: nvid
+                khid: {
+                    [Op.ne]: khid
+                },
+                cmnd: req.body.cmnd
+            }
+        })
+
+        if(checkCMND) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: CustomerMess.EMAIL_EXITS,
+                errors: {
+                    email: CustomerMess.EMAIL_EXITS
+                }
+            })
+            return;
+        }
+        // End Check Exits CMND
+
+        // Check Exits Email
+        const checkMail = await khach_hang.findOne({
+            where: {
+                khid: {
+                    [Op.ne]: khid
                 },
                 email: req.body.email
             }
@@ -196,43 +219,21 @@ export const update = async (req: Request, res: Response) => {
         if(checkMail) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: StaffMess.EMAIL_EXITS,
+                message: CustomerMess.EMAIL_EXITS,
                 errors: {
-                    email: StaffMess.EMAIL_EXITS
+                    email: CustomerMess.EMAIL_EXITS
                 }
             })
             return;
         }
+        // End Check Exits Email
 
-        const checkTaikhoan = await nhan_vien.findOne({
+        delete req.body.khid;
+        delete req.body.nvid;
+
+        await khach_hang.update(req.body, {
             where: {
-                nvid: {
-                    [Op.ne]: nvid
-                },
-                taikhoan: req.body.taikhoan
-            }
-        })
-
-        if(checkTaikhoan) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: AuthMess.ACCOUNT_EXITS,
-                errors: {
-                    taikhoan: AuthMess.ACCOUNT_EXITS
-                }
-            })
-            return;
-        }
-
-        if(req.body.matkhau) {
-            req.body.matkhau = await bcrypt.hashSync(req.body.matkhau, parseInt(process.env.SALT_ROUNDS))
-        } else {
-            delete req.body.matkhau
-        }
-
-        await nhan_vien.update(req.body, {
-            where: {
-                nvid: nvid
+                khid: khid
             }
         })
 
@@ -241,7 +242,7 @@ export const update = async (req: Request, res: Response) => {
             message: CommonMess.UPDATE_SUCCESS
         })
       } catch (error) {
-        console.log('Error in logout controller', error.message);
+        console.log('Error in update customer controller', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
       }
 }

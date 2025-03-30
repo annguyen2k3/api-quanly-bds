@@ -19,8 +19,8 @@ export const login = async (req: Request, res: Response) => {
         })
         
         if(!nhanvien) {
-            res.status(StatusCodes.UNAUTHORIZED).json({
-                code: StatusCodes.UNAUTHORIZED,
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
                 message: CommonMess.INVALID_DATA,
                 errors: {
                     taikhoan: AuthMess.ACCOUNT_NOT_EXITS
@@ -32,8 +32,8 @@ export const login = async (req: Request, res: Response) => {
         const checkPass =  bcrypt.compareSync(matkhau, nhanvien["matkhau"])
 
         if(!checkPass) {
-            res.status(StatusCodes.UNAUTHORIZED).json({
-                code: StatusCodes.BAD_REQUEST,
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
                 message: CommonMess.INVALID_DATA,
                 errors: {
                     matkhau: AuthMess.PASSWORD_INCORRECT
@@ -45,7 +45,10 @@ export const login = async (req: Request, res: Response) => {
         if(nhanvien["trangthai"] === 0) {
             res.status(StatusCodes.UNAUTHORIZED).json({
                 code: StatusCodes.UNAUTHORIZED,
-                message: AuthMess.ACCOUNT_INACTIVE
+                message: AuthMess.ACCOUNT_INACTIVE,
+                errors: {
+                    taikhoan: AuthMess.ACCOUNT_INACTIVE
+                }
             })
             return;
         }
