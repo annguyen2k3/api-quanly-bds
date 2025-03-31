@@ -50,3 +50,9 @@ export const AuthMess = {
   LOGOUT_SUCCESS: 'Đăng xuất thành công',
 } as const;
   
+export const RealEstateMess = {
+  IDTYPE_INVALID: 'Loại BDS không hợp lệ',
+  ADDRESS_REQUIRED: 'Địa chỉ không được để trống',
+  PRICE_INVALID: 'Giá không hợp lệ',
+  SIZE_INVALID: 'Kích thước không hợp lệ'
+}

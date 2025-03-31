@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CustomerMess } from '../constants/messages.constant';
+import { CustomerMess, RealEstateMess, StaffMess } from '../constants/messages.constant';
 
 export const customerSchemaBase = z.object({
         hoten: z.string().min(1, CustomerMess.NAME_REQUIRED),
@@ -24,4 +24,16 @@ export const customerSchemaBase = z.object({
             .refine((val) => val === undefined || val === 0 || val === 1, {
                 message: CustomerMess.STATUS_INVALID,
             }),
-    });
+});
+
+export const requestCustomerSchema = z.object({
+    loaiid: z.number().min(1, RealEstateMess.IDTYPE_INVALID),
+    khid: z.number().min(1, CustomerMess.IDSTAFF_REQUIRED),
+    vitri: z.string().min(1, RealEstateMess.ADDRESS_REQUIRED),
+    giaf: z.number().min(1, RealEstateMess.PRICE_INVALID),
+    giat: z.number().min(1, RealEstateMess.PRICE_INVALID),
+    daif: z.number().min(1, RealEstateMess.SIZE_INVALID),
+    dait: z.number().min(1, RealEstateMess.SIZE_INVALID),
+    rongf: z.number().min(1, RealEstateMess.SIZE_INVALID),
+    rongt: z.number().min(1, RealEstateMess.SIZE_INVALID),
+})

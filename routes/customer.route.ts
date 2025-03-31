@@ -31,4 +31,17 @@ router.put(
     controller.update
 )
 
+router.get(
+    "/request/list",
+    authMiddleware.requireAuth,
+    controller.listRequest
+)
+
+router.post(
+    "/request/create",
+    authMiddleware.requireAuth,
+    validateData(customerSchema.requestCustomerSchema),
+    controller.createRequest
+)
+
 export const customerRouter: Router = router
