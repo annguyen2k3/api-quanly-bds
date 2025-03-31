@@ -12,20 +12,20 @@ router.get(
     controller.getList)
 
 router.get(
-    "/detail/:khid",
+    "/:khid",
     authMiddleware.requireAuth,
     controller.detail
 )
 
 router.post(
-    "/create",
+    "/",
     authMiddleware.requireAuth,
     validateData(customerSchema.customerSchemaBase),
     controller.create
 )
 
 router.put(
-    "/update/:khid",
+    "/:khid",
     authMiddleware.requireAuth,
     validateData(customerSchema.customerSchemaBase),
     controller.update
@@ -38,7 +38,7 @@ router.get(
 )
 
 router.post(
-    "/request/create",
+    "/request",
     authMiddleware.requireAuth,
     validateData(customerSchema.requestCustomerSchema),
     controller.createRequest

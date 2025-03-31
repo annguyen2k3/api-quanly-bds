@@ -14,20 +14,20 @@ router.get(
     controller.getList)
 
 router.get(
-    "/detail/:nvid", 
+    "/:nvid", 
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
     controller.detail)
 
 router.post(
-    "/create", 
+    "/", 
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
     validateData(staffSchema.staffSchemaBase),
     controller.create)
 
 router.put(
-    "/update/:id", 
+    "/:id", 
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
     validateData(staffSchema.updateAdmin),
