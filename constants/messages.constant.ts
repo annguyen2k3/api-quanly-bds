@@ -1,3 +1,5 @@
+import { STATUS_CODES } from "http";
+
 export const CommonMess = {
     SERVER_ERROR: 'Lỗi server',
     UNAUTHORIZED: 'Không có quyền truy cập',
@@ -27,7 +29,7 @@ export const StaffMess = {
 
 export const CustomerMess = {
   ...InfoPersonalMess,
-  IDSTAFF_REQUIRED: 'Yêu cầu mã nhân viên',
+  ID_REQUIRED: 'Yêu cầu mã nhân viên',
   ID_NOT_EXITS: 'Mã khách hàng không tồn tại',
   CMND_INVALID: 'CMND không hợp lệ',
   CMND_EXITS: 'CMND đã tồn tại',
@@ -52,7 +54,12 @@ export const AuthMess = {
   
 export const RealEstateMess = {
   IDTYPE_INVALID: 'Loại BDS không hợp lệ',
+  ID_NOT_EXIST: 'Mã BDS không tồn tại',
   ADDRESS_REQUIRED: 'Địa chỉ không được để trống',
+  STATUS_INVALID: 'Tình trạng không hợp lệ',
+  ASSET_CODE: 'MSQSDD không hợp lệ',
+  ASSET_CODE_EXIST: 'MSQSQD đã tồn tại',
   PRICE_INVALID: 'Giá không hợp lệ',
-  SIZE_INVALID: 'Kích thước không hợp lệ'
-}
+  SIZE_INVALID: 'Kích thước không hợp lệ',
+  ROSES_INVALID: 'Huê hồng không hợp lệ'
+} as const;

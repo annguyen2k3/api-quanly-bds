@@ -10,4 +10,4 @@ router.get(
     controller.getList)
 
 
-export const realEstateRouter: Router = router
+export const typeRealEstateRouter: Router = router

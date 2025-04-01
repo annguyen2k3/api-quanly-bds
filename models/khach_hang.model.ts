@@ -19,7 +19,6 @@ export type KhachHangAttributes = {
 
 export interface KhachHangCreationAttributes extends Optional<KhachHangAttributes, 'khid' | 'mota' | 'trangthai'> {}
 
-// Model khach_hang với các thuộc tính cần có
 export class KhachHang extends Model<KhachHangAttributes, KhachHangCreationAttributes> implements KhachHangAttributes {
   khid!: number;
   nvid!: number;

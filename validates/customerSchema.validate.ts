@@ -28,7 +28,7 @@ export const customerSchemaBase = z.object({
 
 export const requestCustomerSchema = z.object({
     loaiid: z.number().min(1, RealEstateMess.IDTYPE_INVALID),
-    khid: z.number().min(1, CustomerMess.IDSTAFF_REQUIRED),
+    khid: z.number().min(1, CustomerMess.ID_REQUIRED),
     vitri: z.string().min(1, RealEstateMess.ADDRESS_REQUIRED),
     giaf: z.number().min(1, RealEstateMess.PRICE_INVALID),
     giat: z.number().min(1, RealEstateMess.PRICE_INVALID),
