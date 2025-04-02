@@ -34,7 +34,9 @@ router.post(
 router.put(
     "/:id",
     authMiddleware.requireAuth,
+    upload.fields([{ name: "hinhanh", maxCount: 10 }]),
     validateData(realEstateSchemaBase),
+    uploadCloud.uploadFields,
     controller.update
 )
 

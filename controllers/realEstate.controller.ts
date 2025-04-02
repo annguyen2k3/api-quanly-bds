@@ -6,6 +6,7 @@ import { loai_bds } from "../models/loai_bds.model";
 import { khach_hang } from "../models/khach_hang.model";
 import { Op } from "sequelize";
 import { hinh_bds } from "../models/hinh_bds.model";
+import { deleteImgCloud } from "../helper/deleteImgCloudinary";
 
 // [GET] /real-estate/list
 export const getList = async (req: Request, res: Response) => {
@@ -80,11 +81,22 @@ export const detail = async (req: Request, res: Response) => {
             return;
         }
 
+        const images = await hinh_bds.findAll({
+            where: { bdsid: bds.bdsid },
+            raw: true
+        });
+
+        const dshinhanh = [];
+        if (images && images.length > 0) {
+            images.forEach(item => dshinhanh.push(item['hinh']))
+        }
+
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
             message: CommonMess.GET_SUCCESS,
             data: {
-                ...bds
+                ...bds,
+                dshinhanh
             }
         })
       } catch (error) {
@@ -290,6 +302,33 @@ export const update = async (req: Request, res: Response) => {
             return;
         }
         // Check loaiid
+
+        // Xoá ảnh cũ
+        const imagesDel = await hinh_bds.findAll({
+            where: { bdsid: bdsUpdate.bdsid },
+        });
+
+        if (imagesDel && imagesDel.length > 0) {
+            const imageUrls = imagesDel.map((img) => img['hinh']);
+
+            await deleteImgCloud(imageUrls);
+
+            await hinh_bds.destroy({
+                where: { bdsid: bdsUpdate.bdsid },
+            });
+        }
+
+        // Gán URL ảnh mới
+        const dshinhanh = req.body.hinhanh
+        data.hinhanh = req.body.hinhanh[0]
+        if (dshinhanh && dshinhanh.length > 0) {
+            dshinhanh.forEach(async (hinhanh) => {
+                await hinh_bds.create({
+                    bdsid: bdsUpdate.bdsid,
+                    hinh: hinhanh,
+                });
+            });
+        }
 
         await bat_dong_san.update(data, {
             where: {
