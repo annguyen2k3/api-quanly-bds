@@ -8,13 +8,13 @@ import cors from "cors"
 import routers from "./routes/index.route";
 
 dotenv.config()
-
 sequelize;
 
 const app: Express = express()
 const port: number = parseInt(process.env.PORT) || 3030
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Cấu hình CORS
 const allowedOrigins = ['http://localhost:5173', 'https://rs-fe.vercel.app'];

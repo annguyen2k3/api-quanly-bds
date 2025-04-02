@@ -5,6 +5,7 @@ import { CommonMess, CustomerMess, RealEstateMess } from "../constants/messages.
 import { loai_bds } from "../models/loai_bds.model";
 import { khach_hang } from "../models/khach_hang.model";
 import { Op } from "sequelize";
+import { hinh_bds } from "../models/hinh_bds.model";
 
 // [GET] /real-estate/list
 export const getList = async (req: Request, res: Response) => {
@@ -95,14 +96,15 @@ export const detail = async (req: Request, res: Response) => {
 // [POST] /real-esate 
 export const create = async (req: Request, res: Response) => {
     try {
+
         let data: BDSCreationAttributes = {
             loaiid: req.body.loaiid,
             khid: req.body.khid,
-            tinhtrang: req.body.tinhtrang,
             dientich: req.body.dientich,
             dongia: req.body.dongia,
             masoqsdd: req.body.masoqsdd,
             mota: req.body.mota,
+            hinhanh: req.body.hinhanh[0],
             chieudai: req.body.chieudai,
             chieurong: req.body.chieurong,
             huehong: req.body.huehong,
@@ -168,6 +170,17 @@ export const create = async (req: Request, res: Response) => {
         // Check loaiid
 
         const bdsmoi = await bat_dong_san.create(data)
+
+        // Gán URL ảnh mới
+        const dshinhanh = req.body.hinhanh
+        if (dshinhanh && dshinhanh.length > 0) {
+            dshinhanh.forEach(async (hinhanh) => {
+                await hinh_bds.create({
+                    bdsid: bdsmoi.bdsid,
+                    hinh: hinhanh,
+                });
+            });
+        }
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
