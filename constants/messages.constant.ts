@@ -12,6 +12,7 @@ export const CommonMess = {
 
 export const InfoPersonalMess = {
   NAME_REQUIRED: 'Tên không được để trống',
+  NAME_INVALID: 'Tên không được chứa ký tự đặc biệt hoặc số',
   PHONENUMBER_INVALID: 'Số điện thoại không hợp lệ',
   ADDRESS_REQUIRED: 'Địa chỉ không được để trống',
   BIRTHDAY_INVALID: 'Ngày sinh không hợp lệ',
@@ -58,6 +59,7 @@ export const RealEstateMess = {
   ADDRESS_REQUIRED: 'Địa chỉ không được để trống',
   STATUS_INVALID: 'Tình trạng không hợp lệ',
   ASSET_CODE: 'MSQSDD không hợp lệ',
+  IMG_REQUIRED: 'Yêu cầu tải lên ít nhất 1 ảnh',
   ASSET_CODE_EXIST: 'MSQSQD đã tồn tại',
   PRICE_INVALID: 'Giá không hợp lệ',
   SIZE_INVALID: 'Kích thước không hợp lệ',

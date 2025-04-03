@@ -8,6 +8,7 @@ export const realEstateSchemaBase = z.object({
     dientich: z.coerce.number().min(1, RealEstateMess.SIZE_INVALID),
     dongia: z.coerce.number().min(1, RealEstateMess.SIZE_INVALID),
     masoqsdd: z.string().min(1, RealEstateMess.ASSET_CODE),
+    mota: z.string().optional(),
     chieudai: z.coerce.number().min(1, RealEstateMess.SIZE_INVALID),
     chieurong: z.coerce.number().min(1, RealEstateMess.SIZE_INVALID),
     huehong: z.coerce.number().min(1, RealEstateMess.ROSES_INVALID),
@@ -15,5 +16,5 @@ export const realEstateSchemaBase = z.object({
     thanhpho: z.string().min(1, RealEstateMess.ADDRESS_REQUIRED),
     sonha: z.string().min(1, RealEstateMess.ADDRESS_REQUIRED),
     quan: z.string().min(1, RealEstateMess.ADDRESS_REQUIRED),
-    phuong: z.string().min(1, RealEstateMess.ADDRESS_REQUIRED)
-});
+    phuong: z.string().min(1, RealEstateMess.ADDRESS_REQUIRED),
+}).strict();

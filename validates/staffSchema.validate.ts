@@ -3,18 +3,41 @@ import { StaffMess, AuthMess } from '../constants/messages.constant';
 
 export const staffSchemaBase = z.object({
         taikhoan: z.string().min(1, AuthMess.ACCOUNT_REQUIRED),
+
         matkhau: z.string().min(6, AuthMess.PASSWORD_INVALID),
-        tennv: z.string().min(1, StaffMess.NAME_REQUIRED),
+
+        tennv: z.string()
+                        .min(1, StaffMess.NAME_REQUIRED)
+                        .regex(/^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s]+$/, StaffMess.NAME_INVALID),
+
         sdt: z.string().regex(/^0\d{9}$/, StaffMess.PHONENUMBER_INVALID),
+
         diachi: z.string().min(1, StaffMess.ADDRESS_REQUIRED),
-        ngaysinh: z.string().date(StaffMess.BIRTHDAY_INVALID),
+
+        ngaysinh: z.string()
+                            .refine((val) => {
+                                const isValidFormat = /^\d{4}-\d{2}-\d{2}$/.test(val);
+                                if (!isValidFormat) return false;
+                                
+                                const date = new Date(val);
+                                return !isNaN(date.getTime());
+                            }, StaffMess.BIRTHDAY_INVALID)
+                            .refine((val) => {
+                                const birthDate = new Date(val);
+                                const today = new Date();
+                                return birthDate < today;
+                            }, StaffMess.BIRTHDAY_INVALID),
+
         gioitinh: z.number().refine((val) => val === 0 || val === 1, {
             message: StaffMess.SEX_REQUIRED,
         }),
+
         email: z.string().email(StaffMess.EMAIL_INVALID),
+
         quyen: z.number().refine((val) => val === 0 || val === 1, {
             message: StaffMess.ROLE_INVALID,
         }),
+
         trangthai: z
             .number()
             .optional()

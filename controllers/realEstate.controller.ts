@@ -109,13 +109,24 @@ export const detail = async (req: Request, res: Response) => {
 export const create = async (req: Request, res: Response) => {
     try {
 
+        if(req.body.hinhanh.length <= 0) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: RealEstateMess.IMG_REQUIRED,
+                errors: {
+                    hinhanh: RealEstateMess.IMG_REQUIRED
+                }
+            })
+            return;
+        }
+
         let data: BDSCreationAttributes = {
             loaiid: req.body.loaiid,
             khid: req.body.khid,
             dientich: req.body.dientich,
             dongia: req.body.dongia,
             masoqsdd: req.body.masoqsdd,
-            mota: req.body.mota,
+            mota: req.body.mota??'',
             hinhanh: req.body.hinhanh[0],
             chieudai: req.body.chieudai,
             chieurong: req.body.chieurong,
@@ -223,6 +234,17 @@ export const update = async (req: Request, res: Response) => {
                 message: RealEstateMess.ID_NOT_EXIST,
                 errors: {
                     bdsid: RealEstateMess.ID_NOT_EXIST
+                }
+            })
+            return;
+        }
+
+        if(req.body.hinhanh.length <= 0) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: RealEstateMess.IMG_REQUIRED,
+                errors: {
+                    hinhanh: RealEstateMess.IMG_REQUIRED
                 }
             })
             return;
