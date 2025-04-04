@@ -62,7 +62,7 @@ export const getList = async (req: Request, res: Response) => {
       }
 }
 
-// [GET] /customer/detail/:khid
+// [GET] /customer/:khid
 export const detail = async (req: Request, res: Response) => {
     try {
         const id =  parseInt(req.params.khid);

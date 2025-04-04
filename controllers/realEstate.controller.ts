@@ -257,7 +257,7 @@ export const update = async (req: Request, res: Response) => {
             dientich: req.body.dientich,
             dongia: req.body.dongia,
             masoqsdd: req.body.masoqsdd,
-            mota: req.body.mota,
+            mota: req.body.mota??'',
             chieudai: req.body.chieudai,
             chieurong: req.body.chieurong,
             huehong: req.body.huehong,

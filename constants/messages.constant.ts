@@ -30,7 +30,7 @@ export const StaffMess = {
 
 export const CustomerMess = {
   ...InfoPersonalMess,
-  ID_REQUIRED: 'Yêu cầu mã nhân viên',
+  ID_REQUIRED: 'Yêu cầu mã khách hàng',
   ID_NOT_EXITS: 'Mã khách hàng không tồn tại',
   CMND_INVALID: 'CMND không hợp lệ',
   CMND_EXITS: 'CMND đã tồn tại',
@@ -64,4 +64,12 @@ export const RealEstateMess = {
   PRICE_INVALID: 'Giá không hợp lệ',
   SIZE_INVALID: 'Kích thước không hợp lệ',
   ROSES_INVALID: 'Huê hồng không hợp lệ'
+} as const;
+
+export const ContractMess = {
+  KGID_NOT_EXIST: 'Mã hợp đồng kí gửi không tồn tại',
+  STATUS_INVALID: 'Trạng thái không hợp lệ',
+  VALUE_INVALID: 'Giá trị không hợp lệ',
+  COST_INVALID: 'Chi phí dịch vụ không hợp lệ',
+  DATE_INVALID: 'Ngày không hợp lệ',
 } as const;

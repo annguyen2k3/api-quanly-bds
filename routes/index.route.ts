@@ -5,6 +5,7 @@ import { meRouter } from "./me.route"
 import { customerRouter } from "./customer.route"
 import { typeRealEstateRouter } from "./typeRealEstate.route"
 import { realEstateRoute } from "./realEstate.route"
+import { consignmentContract } from "./consignmentContract.route"
 
 const routers = (app: Express): void => {
     
@@ -23,6 +24,8 @@ const routers = (app: Express): void => {
     app.use("/type-real-estate", typeRealEstateRouter)
 
     app.use("/real-estate", realEstateRoute)
+
+    app.use("/consignment-contract", consignmentContract)
 }
 
 export default routers
