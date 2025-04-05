@@ -5,7 +5,8 @@ import { meRouter } from "./me.route"
 import { customerRouter } from "./customer.route"
 import { typeRealEstateRouter } from "./typeRealEstate.route"
 import { realEstateRoute } from "./realEstate.route"
-import { consignmentContract } from "./consignmentContract.route"
+import {  consignmentContractRouter } from "./consignmentContract.route"
+import { depositContractRouter } from "./depositContract.route"
 
 const routers = (app: Express): void => {
     
@@ -25,7 +26,9 @@ const routers = (app: Express): void => {
 
     app.use("/real-estate", realEstateRoute)
 
-    app.use("/consignment-contract", consignmentContract)
+    app.use("/consignment-contract", consignmentContractRouter)
+
+    app.use("/deposit-contract", depositContractRouter)
 }
 
 export default routers
