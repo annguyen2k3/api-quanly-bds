@@ -4,7 +4,8 @@ import { CommonMess, ContractMess, CustomerMess, RealEstateMess } from "../const
 import { hd_ky_gui, HDKyGui } from "../models/hd_ky_gui.model";
 import { khach_hang } from "../models/khach_hang.model";
 import { bat_dong_san } from "../models/bat_dong_san.model";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
+import { realEstateStatus } from "../constants/enums";
 
 // [GET] /consignment-contract/list
 export const getList = async (req: Request, res: Response) => {
@@ -92,7 +93,7 @@ export const detail = async (req: Request, res: Response) => {
 
         const hdkygui: HDKyGui = await hd_ky_gui.findOne({
             where: {
-                khid: id
+                kgid: id
             },
             raw: true
         })
@@ -102,7 +103,7 @@ export const detail = async (req: Request, res: Response) => {
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
                 message: ContractMess.KGID_NOT_EXIST,
                 errors: {
-                    khid: ContractMess.KGID_NOT_EXIST
+                    kgid: ContractMess.KGID_NOT_EXIST
                 }
             })
             return;
@@ -158,22 +159,38 @@ export const create = async (req: Request, res: Response) => {
             return;
         }
 
-        const checkKG = await hd_ky_gui.findOne({
-            where: {
-                bdsid: checkBDS.bdsid,
-                trangthai: 1
+        if(checkBDS.tinhtrang != 0) {
+            switch (checkBDS.tinhtrang) {
+                case realEstateStatus.ACTIVE:
+                    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                        code: StatusCodes.UNPROCESSABLE_ENTITY,
+                        message: RealEstateMess.ACTIVE,
+                        errors: {
+                            bdsid: RealEstateMess.ACTIVE
+                        }
+                    })
+                    return;
+                case realEstateStatus.DEPOSITED:
+                    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                        code: StatusCodes.UNPROCESSABLE_ENTITY,
+                        message: RealEstateMess.DEPOSITED,
+                        errors: {
+                            bdsid: RealEstateMess.DEPOSITED
+                        }
+                    })
+                    return;
+                case realEstateStatus.SOLD:
+                    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                        code: StatusCodes.UNPROCESSABLE_ENTITY,
+                        message: RealEstateMess.SOLD,
+                        errors: {
+                            bdsid: RealEstateMess.SOLD
+                        }
+                    })
+                    return;
+                default:
+                    break;
             }
-        })
-
-        if(checkKG) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: 'Bất động sản đã được ký gửi',
-                errors: {
-                    bdsid: 'Bất động sản đã được ký gửi'
-                }
-            })
-            return;
         }
         // End Check BDS
 
@@ -181,17 +198,15 @@ export const create = async (req: Request, res: Response) => {
         if(req.body.khid != checkBDS.khid) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: "BDS không thuộc quyền sở hữu của khách hàng này",
+                message: RealEstateMess.CUSTOMER_NOT_ROLE,
                 errors: {
-                    khid: "BDS không thuộc quyền sở hữu của khách hàng này"
+                    khid: RealEstateMess.CUSTOMER_NOT_ROLE
                 }
             })
             return;
         }
         // End Check Customer 
-
         
-
         // Check DATE
         if(req.body.ngaybatdau > req.body.ngayketthuc) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
@@ -208,6 +223,14 @@ export const create = async (req: Request, res: Response) => {
 
         const newRow = await hd_ky_gui.create(req.body);
 
+        await bat_dong_san.update({
+            tinhtrang: 1
+        }, {
+            where: {
+                bdsid: newRow.bdsid
+            }
+        })
+
         res.status(StatusCodes.CREATED).json({
             code: StatusCodes.CREATED,
             message: CommonMess.CREATE_SUCCESS,
@@ -221,15 +244,16 @@ export const create = async (req: Request, res: Response) => {
       }
 }
 
-// [PUT] /consignment-contract/:kgid
-export const update = async (req: Request, res: Response) => {
+// [PUT] /consignment-contract/cancel/:kgid
+export const cancel = async (req: Request, res: Response) => {
     try {
         const idUpdate = parseInt(req.params.kgid)
 
         const existRecord = await hd_ky_gui.findOne({
             where: {
                 kgid: idUpdate
-            }
+            },
+            raw: true
         })
 
         if(!existRecord) {
@@ -243,85 +267,24 @@ export const update = async (req: Request, res: Response) => {
             return;
         }
 
-        // Check BDS
-        const checkBDS = await bat_dong_san.findOne({
+        await hd_ky_gui.update({ trangthai: 0 }, {
             where: {
-                bdsid: req.body.bdsid
-            },
-            raw: true
-        })
-        if(!checkBDS) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: RealEstateMess.ID_NOT_EXIST,
-                errors: {
-                    bdsid: RealEstateMess.ID_NOT_EXIST
-                }
-            })
-            return;
-        }
-
-        const checkKG = await hd_ky_gui.findOne({
-            where: {
-                kgid: {
-                    [Op.ne]: idUpdate
-                },
-                bdsid: checkBDS.bdsid,
-                trangthai: 1
+                kgid: existRecord.kgid
             }
         })
 
-        if(checkKG) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: 'Bất động sản đã được ký gửi',
-                errors: {
-                    bdsid: 'Bất động sản đã được ký gửi'
-                }
-            })
-            return;
-        }
-        // End Check BDS
-
-        // Check Customer
-        if(req.body.khid != checkBDS.khid) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: "BDS không thuộc quyền sở hữu của khách hàng này",
-                errors: {
-                    khid: "BDS không thuộc quyền sở hữu của khách hàng này"
-                }
-            })
-            return;
-        }
-        // End Check Customer 
-
-        // Check DATE
-        if(req.body.ngaybatdau > req.body.ngayketthuc) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: ContractMess.DATE_INVALID,
-                errors: {
-                    ngaybatdau: ContractMess.DATE_INVALID,
-                    ngayketthuc: ContractMess.DATE_INVALID,
-                }
-            })
-            return;
-        }
-        // End Check DATE
-
-        await hd_ky_gui.update(req.body, {
+        await bat_dong_san.update({ tinhtrang: 0 }, {
             where: {
-                kgid: idUpdate
+                bdsid: existRecord.bdsid
             }
-        });
+        })
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: CommonMess.UPDATE_SUCCESS,
+            message: ContractMess.CANCEL_SUCCESSED,
         })
       } catch (error) {
-        console.log('Error in update consignment contract controller: ', error.message);
+        console.log('Error in cancel consignment contract controller: ', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
       }
 }

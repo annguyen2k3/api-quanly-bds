@@ -25,7 +25,7 @@ router.get(
 router.post(
     "/",
     authMiddleware.requireAuth,
-    upload.fields([{ name: "hinhanh", maxCount: 10 }]),
+    upload.fields([{ name: "hinhanh", maxCount: 5 }]),
     validateData(realEstateSchemaBase),
     uploadCloud.uploadFields,
     controller.create
@@ -34,7 +34,7 @@ router.post(
 router.put(
     "/:id",
     authMiddleware.requireAuth,
-    upload.fields([{ name: "hinhanh", maxCount: 10 }]),
+    upload.fields([{ name: "hinhanh", maxCount: 5 }]),
     validateData(realEstateSchemaBase),
     uploadCloud.uploadFields,
     controller.update

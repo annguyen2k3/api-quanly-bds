@@ -63,7 +63,12 @@ export const RealEstateMess = {
   ASSET_CODE_EXIST: 'MSQSQD đã tồn tại',
   PRICE_INVALID: 'Giá không hợp lệ',
   SIZE_INVALID: 'Kích thước không hợp lệ',
-  ROSES_INVALID: 'Huê hồng không hợp lệ'
+  ROSES_INVALID: 'Huê hồng không hợp lệ',
+  EXPIRED: 'Bất động sản hết hiệu lực ký gửi',
+  ACTIVE: 'Bất động sản đang được ký gửi',
+  DEPOSITED: 'Bất động sản đã được đặt đọc',
+  SOLD: 'Bất động sản đã sang nhượng',
+  CUSTOMER_NOT_ROLE: 'Bất động sản không thuộc quyền sở hữu của khách hàng này'
 } as const;
 
 export const ContractMess = {
@@ -72,4 +77,5 @@ export const ContractMess = {
   VALUE_INVALID: 'Giá trị không hợp lệ',
   COST_INVALID: 'Chi phí dịch vụ không hợp lệ',
   DATE_INVALID: 'Ngày không hợp lệ',
+  CANCEL_SUCCESSED: 'Huỷ hợp đồng thành công'
 } as const;

@@ -27,11 +27,10 @@ router.post(
 )
 
 router.put(
-    "/:kgid",
+    "/cancel/:kgid",
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
-    validateData(csmContractSchema),
-    controller.update
+    controller.cancel
 )
 
 

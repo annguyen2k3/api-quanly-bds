@@ -61,7 +61,7 @@ export const bat_dong_san = sequelize.define<BatDongSan>('BatDongSan', {
   tinhtrang: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 1
+    defaultValue: 0
   },
   dientich: {
     type: DataTypes.FLOAT,
