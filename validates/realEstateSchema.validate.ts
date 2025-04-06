@@ -4,7 +4,6 @@ import { CustomerMess, RealEstateMess } from '../constants/messages.constant';
 export const realEstateSchemaBase = z.object({
     loaiid: z.coerce.number().min(1, RealEstateMess.IDTYPE_INVALID),
     khid: z.coerce.number().min(1, CustomerMess.ID_REQUIRED),
-    tinhtrang: z.coerce.number().min(0, RealEstateMess.STATUS_INVALID).optional(),
     dientich: z.coerce.number().min(1, RealEstateMess.SIZE_INVALID),
     dongia: z.coerce.number().min(1, RealEstateMess.SIZE_INVALID),
     masoqsdd: z.string().min(1, RealEstateMess.ASSET_CODE),

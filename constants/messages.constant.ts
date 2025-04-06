@@ -61,7 +61,7 @@ export const RealEstateMess = {
   STATUS_INVALID: 'Tình trạng không hợp lệ',
   ASSET_CODE: 'MSQSDD không hợp lệ',
   IMG_REQUIRED: 'Yêu cầu tải lên ít nhất 1 ảnh',
-  ASSET_CODE_EXIST: 'MSQSQD đã tồn tại',
+  ASSET_CODE_EXIST: 'MSQSDD đã tồn tại',
   PRICE_INVALID: 'Giá không hợp lệ',
   SIZE_INVALID: 'Kích thước không hợp lệ',
   ROSES_INVALID: 'Huê hồng không hợp lệ',

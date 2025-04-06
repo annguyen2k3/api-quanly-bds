@@ -181,23 +181,23 @@ export const create = async (req: Request, res: Response) => {
         }
         // Check loaiid
 
-        // Check khid
-        const checkMSQSQD = await bat_dong_san.findOne({
+        // Check MSQSDD
+        const checkMSQSDD = await bat_dong_san.findOne({
             where: {
                 masoqsdd: data.masoqsdd
             }
         })
-        if(checkMSQSQD) {
+        if(checkMSQSDD) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
                 message: RealEstateMess.ASSET_CODE_EXIST,
                 errors: {
-                    masoqsqd: RealEstateMess.ASSET_CODE_EXIST
+                    masoqsdd: RealEstateMess.ASSET_CODE_EXIST
                 }
             })
             return;
         }
-        // Check loaiid
+        // End Check MSQSDD
 
         const bdsmoi = await bat_dong_san.create(data)
 
@@ -260,7 +260,6 @@ export const update = async (req: Request, res: Response) => {
         let data: BDSCreationAttributes = {
             loaiid: req.body.loaiid,
             khid: req.body.khid,
-            tinhtrang: req.body.tinhtrang,
             dientich: req.body.dientich,
             dongia: req.body.dongia,
             masoqsdd: req.body.masoqsdd,
@@ -311,7 +310,7 @@ export const update = async (req: Request, res: Response) => {
         }
         // Check loaiid
 
-        // Check msqsqd
+        // Check msqsdd
         const checkMSQSDD = await bat_dong_san.findOne({
             where: {
                 bdsid: {
@@ -325,12 +324,12 @@ export const update = async (req: Request, res: Response) => {
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
                 message: RealEstateMess.ASSET_CODE_EXIST,
                 errors: {
-                    masoqsqd: RealEstateMess.ASSET_CODE_EXIST
+                    masoqsdd: RealEstateMess.ASSET_CODE_EXIST
                 }
             })
             return;
         }
-        // Check loaiid
+        // End Check msqsdd
 
         // Xoá ảnh cũ
         const imagesDel = await hinh_bds.findAll({

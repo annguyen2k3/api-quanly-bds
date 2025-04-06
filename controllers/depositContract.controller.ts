@@ -6,7 +6,6 @@ import { khach_hang, KhachHang } from "../models/khach_hang.model";
 import { bat_dong_san, BatDongSan } from "../models/bat_dong_san.model";
 import { depositContractStatus, realEstateStatus } from "../constants/enums";
 import { hd_ky_gui } from "../models/hd_ky_gui.model";
-import { where } from "sequelize";
 
 // [GET] /deposit-contract/list
 export const getList = async (req: Request, res: Response) => {
