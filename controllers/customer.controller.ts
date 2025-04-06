@@ -10,26 +10,26 @@ import { loai_bds } from "../models/loai_bds.model";
 // [GET] /customer/list
 export const getList = async (req: Request, res: Response) => {
     try {
-        const whereObject = {}
-
+        const whereObject: Record<string, any> = {};
+        
         // Find Status
-        let status: number;
+        let status: number | undefined = undefined;
         const rawStatus = req.query.status;
 
-        if (rawStatus === undefined || rawStatus === "") {
-            status = 1;
-        }  else {
+        if (rawStatus !== undefined && rawStatus !== "") {
             const parsedStatus = parseInt(rawStatus as string, 10);
-            if (isNaN(parsedStatus) || ![0,1].includes(parsedStatus)) {
+
+            if (isNaN(parsedStatus) || ![0, 1].includes(parsedStatus)) {
                 res.status(StatusCodes.BAD_REQUEST).json({
                     code: StatusCodes.BAD_REQUEST,
-                    message: CustomerMess.STATUS_INVALID
+                    message: CustomerMess.STATUS_INVALID,
                 });
                 return;
             }
+
             status = parsedStatus;
+            whereObject["trangthai"] = status;
         }
-        whereObject["trangthai"] = status;
         // End Find Status
 
         // Pagination

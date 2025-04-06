@@ -4,19 +4,32 @@ import { CommonMess, ContractMess, CustomerMess, RealEstateMess } from "../const
 import { hd_dat_coc, HDDatCoc } from "../models/hd_dat_coc.model";
 import { khach_hang, KhachHang } from "../models/khach_hang.model";
 import { bat_dong_san, BatDongSan } from "../models/bat_dong_san.model";
-import { realEstateStatus } from "../constants/enums";
+import { depositContractStatus, realEstateStatus } from "../constants/enums";
 import { hd_ky_gui } from "../models/hd_ky_gui.model";
 import { where } from "sequelize";
 
 // [GET] /deposit-contract/list
 export const getList = async (req: Request, res: Response) => {
     try {
-        const whereObject = {}
+        const whereObject: Record<string, any> = {};
 
         // Find Status
-        if(req.query.status) {
-            const statusFind = parseInt(req.query.status as string, 10)
-            whereObject['tinhtrang'] = statusFind
+        let status: number | undefined = undefined;
+        const rawStatus = req.query.status;
+
+        if (rawStatus !== undefined && rawStatus !== "") {
+            const parsedStatus = parseInt(rawStatus as string, 10);
+
+            if (isNaN(parsedStatus) || !Object.values(depositContractStatus).includes(parsedStatus)) {
+                res.status(StatusCodes.BAD_REQUEST).json({
+                    code: StatusCodes.BAD_REQUEST,
+                    message: ContractMess.STATUS_INVALID,
+                });
+                return;
+            }
+
+            status = parsedStatus;
+            whereObject["tinhtrang"] = status;
         }
         // End Find Status
 

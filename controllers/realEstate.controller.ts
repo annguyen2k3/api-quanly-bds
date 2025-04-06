@@ -7,26 +7,33 @@ import { khach_hang } from "../models/khach_hang.model";
 import { Op } from "sequelize";
 import { hinh_bds } from "../models/hinh_bds.model";
 import { deleteImgCloud } from "../helper/deleteImgCloudinary";
+import { realEstateStatus } from "../constants/enums";
 
 // [GET] /real-estate/list
 export const getList = async (req: Request, res: Response) => {
     try {
-        const find = {
-            tinhtrang: 1
-        }
+        const whereObject: Record<string, any> = {};
 
         // Find Status
-        if(req.query.status) {
-            const parsedStatus = parseInt(req.query.status.toString());
-            if (!isNaN(parsedStatus)) {
-                find.tinhtrang = parsedStatus;
-            } else {
-                find.tinhtrang = -1
+        let status: number | undefined = undefined;
+        const rawStatus = req.query.status;
+
+        if (rawStatus !== undefined && rawStatus !== "") {
+            const parsedStatus = parseInt(rawStatus as string, 10);
+
+            if (isNaN(parsedStatus) || !Object.values(realEstateStatus).includes(parsedStatus)) {
+                res.status(StatusCodes.BAD_REQUEST).json({
+                    code: StatusCodes.BAD_REQUEST,
+                    message: RealEstateMess.STATUS_INVALID,
+                });
+                return;
             }
+
+            status = parsedStatus;
+            whereObject["tinhtrang"] = status;
         }
         // End Find Status
 
-        console.log(find)
 
         // Pagination
         const page = parseInt(req.query.page as string) || 1;
@@ -35,7 +42,7 @@ export const getList = async (req: Request, res: Response) => {
         // End Pagination
 
         const { rows, count } = await bat_dong_san.findAndCountAll({
-            where: find,
+            where: whereObject,
             limit,
             offset,
             raw: true
