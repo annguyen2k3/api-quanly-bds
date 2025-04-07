@@ -21,6 +21,10 @@ export const csmContractSchema = z.object({
                 .refine((val) => {
                     const ngay = new Date(val);
                     const today = new Date();
+
+                    ngay.setHours(0, 0, 0, 0);
+                    today.setHours(0, 0, 0, 0);
+
                     return ngay >= today;
                 }, ContractMess.DATE_INVALID),
 
@@ -35,6 +39,10 @@ export const csmContractSchema = z.object({
                 .refine((val) => {
                     const ngay = new Date(val);
                     const today = new Date();
+
+                    ngay.setHours(0, 0, 0, 0);
+                    today.setHours(0, 0, 0, 0);
+
                     return ngay >= today;
                 }, ContractMess.DATE_INVALID),
 
@@ -64,6 +72,10 @@ export const depositContractSchema = z.object({
                 .refine((val) => {
                     const ngay = new Date(val);
                     const today = new Date();
+
+                    ngay.setHours(0, 0, 0, 0);
+                    today.setHours(0, 0, 0, 0);
+
                     return ngay > today;
                 }, ContractMess.DATE_INVALID),
 }).strict();
