@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors"
 
 import routers from "./routes/index.route";
+import { runContractCron } from "./crons/contract.cron";
 
 dotenv.config()
 sequelize;
@@ -50,6 +51,9 @@ app.options('*', cors());
 
 // Sử dụng cookie-parser
 app.use(cookieParser());
+
+// Cron
+runContractCron()
 
 // Routers
 routers(app)
