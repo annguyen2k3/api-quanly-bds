@@ -67,3 +67,10 @@ export const depositContractSchema = z.object({
                     return ngay > today;
                 }, ContractMess.DATE_INVALID),
 }).strict();
+
+export const transferContractSchema = z.object({
+    dcid: z.coerce.number().min(1, ContractMess.ID_NOT_EXIT),
+
+    giatri: z.coerce.number().min(1, ContractMess.VALUE_INVALID),
+
+}).strict();

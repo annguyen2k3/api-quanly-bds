@@ -2,9 +2,9 @@ import { Router } from "express";
 const router: Router = Router()
 
 import * as authMiddleware from "../middleware/auth.middleware"
-import * as controller from "../controllers/depositContract.controller"
+import * as controller from "../controllers/transferContract.controller"
 import {validateData} from "../validates/validate"
-import { csmContractSchema, depositContractSchema } from "../validates/contractSchema.validate";
+import { csmContractSchema, depositContractSchema, transferContractSchema } from "../validates/contractSchema.validate";
 
 router.get(
     "/list", 
@@ -13,24 +13,24 @@ router.get(
 )
 
 router.get(
-    "/:dcid", 
+    "/:cnid",
     authMiddleware.requireAuth,
     controller.detail
 )
 
 router.post(
-    "/", 
+    "/",
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
-    validateData(depositContractSchema),
+    validateData(transferContractSchema),
     controller.create
 )
 
 router.put(
-    "/cancel/:dcid", 
+    "/delete/:cnid",
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
-    controller.cancel
+    controller.deleteContract
 )
 
-export const depositContractRouter: Router = router
+export const transferContractRouter: Router = router

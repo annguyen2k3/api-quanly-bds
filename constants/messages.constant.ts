@@ -7,7 +7,9 @@ export const CommonMess = {
     INVALID_DATA: 'Thông tin không hợp lệ',
     GET_SUCCESS: 'Lấy thông tin thành công',
     CREATE_SUCCESS: 'Tạo thành công',
-    UPDATE_SUCCESS: 'Cập nhật thành công'
+    UPDATE_SUCCESS: 'Cập nhật thành công',
+    DELETE_SUCCESS: 'Xoá thành công',
+    CANCLE_SUCCESS: 'Huỷ thành công'
   } as const;
 
 export const InfoPersonalMess = {
@@ -73,12 +75,15 @@ export const RealEstateMess = {
 } as const;
 
 export const ContractMess = {
+  ID_NOT_EXIT: 'Mã hợp đồng không hợp lệ',
   KGID_NOT_EXIST: 'Hợp đồng kí gửi không tồn tại',
   DCID_NOT_EXIST: 'Hợp đồng đặt cọc không tồn tại',
+  CNID_NOT_EXIST: 'Hợp đồng chuyển nhượng không tồn tại',
   STATUS_INVALID: 'Trạng thái hợp đồng không hợp lệ',
   CONDITION_INVALID: 'Tình trạng hợp đồng không hợp lệ',
   VALUE_INVALID: 'Giá trị không hợp lệ',
   COST_INVALID: 'Chi phí dịch vụ không hợp lệ',
   DATE_INVALID: 'Ngày không hợp lệ',
-  CANCEL_SUCCESSED: 'Huỷ hợp đồng thành công'
+  CANCEL_SUCCESSED: 'Huỷ hợp đồng thành công',
+  CONTRACT_EXPIRED: 'Hợp đồng không còn hiệu lực'
 } as const;

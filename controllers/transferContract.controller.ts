@@ -1,16 +1,21 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { CommonMess, ContractMess, CustomerMess, RealEstateMess } from "../constants/messages.constant";
-import { hd_dat_coc, HDDatCoc } from "../models/hd_dat_coc.model";
+import { hd_chuyen_nhuong, HDChuyenNhuong } from "../models/hd_chuyen_nhuong.model";
 import { khach_hang, KhachHang } from "../models/khach_hang.model";
 import { bat_dong_san, BatDongSan } from "../models/bat_dong_san.model";
+import { hd_dat_coc, HDDatCoc } from "../models/hd_dat_coc.model";
 import { depositContractStatus, realEstateStatus } from "../constants/enums";
-import { hd_ky_gui } from "../models/hd_ky_gui.model";
+import { nhan_vien } from "../models/nhan_vien.model";
+import { Sequelize, QueryTypes } from "sequelize";
+import  sequelize  from "../config/database"
 
-// [GET] /deposit-contract/list
+// [GET] /transfer-contract/list
 export const getList = async (req: Request, res: Response) => {
     try {
-        const whereObject: Record<string, any> = {};
+        const whereObject: Record<string, any> = {
+            trangthai: 1
+        };
 
         // Find Status
         let status: number | undefined = undefined;
@@ -19,7 +24,7 @@ export const getList = async (req: Request, res: Response) => {
         if (rawStatus !== undefined && rawStatus !== "") {
             const parsedStatus = parseInt(rawStatus as string, 10);
 
-            if (isNaN(parsedStatus) || !Object.values(depositContractStatus).includes(parsedStatus)) {
+            if (isNaN(parsedStatus) || ![0,1].includes(parsedStatus)) {
                 res.status(StatusCodes.BAD_REQUEST).json({
                     code: StatusCodes.BAD_REQUEST,
                     message: ContractMess.STATUS_INVALID,
@@ -28,7 +33,7 @@ export const getList = async (req: Request, res: Response) => {
             }
 
             status = parsedStatus;
-            whereObject["tinhtrang"] = status;
+            whereObject["trangthai"] = status;
         }
         // End Find Status
 
@@ -38,7 +43,7 @@ export const getList = async (req: Request, res: Response) => {
         const offset = (page - 1) * limit;
         // End Pagination
 
-        const { rows, count } = await hd_dat_coc.findAndCountAll({
+        const { rows, count } = await hd_chuyen_nhuong.findAndCountAll({
             where: whereObject,
             limit,
             offset,
@@ -60,11 +65,18 @@ export const getList = async (req: Request, res: Response) => {
                     },
                     raw: true
                 })
+
+                const tiendatcoc = await hd_dat_coc.findOne({
+                    where: {
+                        dcid: item.dcid
+                    }
+                })
                 
                 return {
                     ...item,
+                    tiendatcoc: tiendatcoc.giatri,
                     khachhang,
-                    batdongsan: bds
+                    batdongsan: bds,
                 };
             })
         );
@@ -81,21 +93,79 @@ export const getList = async (req: Request, res: Response) => {
             }
         })
     } catch (error) {
-        console.log('Error in get list deposit contract controller: ', error.message);
+        console.log('Error in get list transfer contract controller: ', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
     }
 }
 
-// [GET] /deposit-contract/:dcid
+// [GET] /transfer-contract/:cnid
 export const detail = async (req: Request, res: Response) => {
     try {
-        const id =  parseInt(req.params.dcid);
+        const id =  parseInt(req.params.cnid);
 
-        const hddatcoc: HDDatCoc = await hd_dat_coc.findOne({
+        const hdchuyennhuong: HDChuyenNhuong = await hd_chuyen_nhuong.findOne({
             where: {
-                dcid: id
+                cnid: id
             },
             raw: true
+        })
+
+        if(!hdchuyennhuong) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: ContractMess.CNID_NOT_EXIST,
+                errors: {
+                    cnid: ContractMess.CNID_NOT_EXIST
+                }
+            })
+            return;
+        }
+
+        const khachhang = await khach_hang.findOne({
+            where: {
+                khid: hdchuyennhuong.khid
+            },
+            raw: true
+        });
+
+        const bds = await bat_dong_san.findOne({
+            where: {
+                bdsid: hdchuyennhuong.bdsid
+            },
+            raw: true
+        })
+
+        const hddatcoc = await hd_dat_coc.findOne({
+            where: {
+                dcid: hdchuyennhuong.dcid
+            },
+            raw: true
+        })
+
+        res.status(StatusCodes.OK).json({
+            code: StatusCodes.OK,
+            message: CommonMess.GET_SUCCESS,
+            data: {
+                ...hdchuyennhuong,
+                hddatcoc,
+                khachhang,
+                batdongsan: bds
+            }
+        })
+      } catch (error) {
+        console.log('ErrorController Detail Deposit Contract: ', error.message);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
+      }
+}
+
+// [POST] /transfer-contract
+export const create = async (req: Request, res: Response) => {
+    try {
+        // check hddc
+        const hddatcoc: HDDatCoc = await hd_dat_coc.findOne({
+            where: {
+                dcid: req.body.dcid
+            }
         })
 
         if(!hddatcoc) {
@@ -109,142 +179,54 @@ export const detail = async (req: Request, res: Response) => {
             return;
         }
 
-        const khachhang = await khach_hang.findOne({
-            where: {
-                khid: hddatcoc.khid
-            },
-            raw: true
-        });
-
-        const bds = await bat_dong_san.findOne({
-            where: {
-                bdsid: hddatcoc.bdsid
-            },
-            raw: true
-        })
-
-        res.status(StatusCodes.OK).json({
-            code: StatusCodes.OK,
-            message: CommonMess.GET_SUCCESS,
-            data: {
-                ...hddatcoc,
-                khachhang,
-                batdongsan: bds
-            }
-        })
-      } catch (error) {
-        console.log('ErrorController Detail Deposit Contract: ', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
-      }
-}
-
-// [POST] /deposit-contract
-export const create = async (req: Request, res: Response) => {
-    try {
-        // check bds
-        const bds: BatDongSan = await bat_dong_san.findOne({
-            where: {
-                bdsid: req.body.bdsid
-            }
-        })
-
-        if(!bds) {
+        if(hddatcoc.tinhtrang != depositContractStatus.DEPOSITED) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: RealEstateMess.ID_NOT_EXIST,
+                message: ContractMess.CONTRACT_EXPIRED,
                 errors: {
-                    bdsid: RealEstateMess.ID_NOT_EXIST
+                    dcid: ContractMess.CONTRACT_EXPIRED
                 }
             })
             return;
         }
+        // end check hddc
 
-        if(bds.tinhtrang != realEstateStatus.ACTIVE) {
-            switch (bds.tinhtrang) {
-                case realEstateStatus.EXPIRED:
-                    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                        code: StatusCodes.UNPROCESSABLE_ENTITY,
-                        message: RealEstateMess.EXPIRED,
-                        errors: {
-                            bdsid: RealEstateMess.EXPIRED
-                        }
-                    })
-                    return;
-
-                case realEstateStatus.DEPOSITED:
-                    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                        code: StatusCodes.UNPROCESSABLE_ENTITY,
-                        message: RealEstateMess.DEPOSITED,
-                        errors: {
-                            bdsid: RealEstateMess.DEPOSITED
-                        }
-                    })
-                    return;
-
-                case realEstateStatus.SOLD:
-                    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                        code: StatusCodes.UNPROCESSABLE_ENTITY,
-                        message: RealEstateMess.SOLD,
-                        errors: {
-                            bdsid: RealEstateMess.SOLD
-                        }
-                    })
-                    return;
-            
-                default:
-                    break;
-            }
-        }
-        // end check bds
-
-        // check customer
-        const customer: KhachHang = await khach_hang.findOne({
-            where: {
-                khid: req.body.khid,
-                trangthai: 1
-            }
+        const row = await hd_chuyen_nhuong.create({
+            dcid: hddatcoc.dcid,
+            khid: hddatcoc.khid,
+            bdsid: hddatcoc.bdsid,
+            giatri: req.body.giatri
         })
 
-        if(!customer) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: CustomerMess.ID_NOT_EXITS,
-                errors: {
-                    khid: CustomerMess.ID_NOT_EXITS
-                }
-            })
-            return;
-        }
-
-        if(customer.khid == bds.khid) {
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: CustomerMess.BUYER_NOT_SELLER,
-                errors: {
-                    khid: CustomerMess.BUYER_NOT_SELLER
-                }
-            })
-            return;
-        }
-        // end check customer
-
-        const row = await hd_dat_coc.create({...req.body})
-
-        await hd_ky_gui.update({
-            trangthai: 0
+        await hd_dat_coc.update({
+            tinhtrang: depositContractStatus.COMPLETED
         }, {
             where: {
-                bdsid: row.bdsid
+                dcid: row.dcid
             }
         })
 
         await bat_dong_san.update({
-            tinhtrang: realEstateStatus.DEPOSITED
+            tinhtrang: realEstateStatus.SOLD
         }, {
             where: {
                 bdsid: row.bdsid
             }
         })
+
+        await sequelize.query(
+            `
+            UPDATE nhan_vien nv
+            JOIN khach_hang kh ON nv.nvid = kh.nvid
+            SET nv.doanhthu = nv.doanhthu + ?
+            WHERE kh.khid = ?
+            `,
+            {
+              replacements: [req.body.giatri, hddatcoc.khid],
+              type: QueryTypes.UPDATE,
+            }
+          );
+          
 
         res.status(StatusCodes.CREATED).json({
             code: StatusCodes.CREATED,
@@ -254,58 +236,48 @@ export const create = async (req: Request, res: Response) => {
             }
         })
       } catch (error) {
-        console.log('ErrorController Create Deposit Contract: ', error.message);
+        console.log('ErrorController Create transfer Contract: ', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }
 
-// [PUT] /deposit-contract/cancel/:dcid
-export const cancel = async (req: Request, res: Response) => {
+// [PUT] /transfer-contract 
+export const deleteContract = async (req: Request, res: Response) => {
     try {
-        const idUpdate = parseInt(req.params.dcid)
+        const id =  parseInt(req.params.cnid);
 
-        const existRecord: HDDatCoc = await hd_dat_coc.findOne({
+        const hdchuyennhuong: HDChuyenNhuong = await hd_chuyen_nhuong.findOne({
             where: {
-                dcid: idUpdate
+                cnid: id
             },
             raw: true
         })
 
-        if(!existRecord) {
+        if(!hdchuyennhuong) {
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 code: StatusCodes.UNPROCESSABLE_ENTITY,
-                message: ContractMess.DCID_NOT_EXIST,
+                message: ContractMess.CNID_NOT_EXIST,
                 errors: {
-                    bdsid: ContractMess.DCID_NOT_EXIST
+                    cnid: ContractMess.CNID_NOT_EXIST
                 }
             })
             return;
         }
 
-        await hd_dat_coc.update({ tinhtrang: 0 }, {
+        await hd_chuyen_nhuong.update({
+            trangthai: 0
+        }, {
             where: {
-                dcid: existRecord.dcid
-            }
-        })
-
-        await hd_ky_gui.update({trangthai: 1} , {
-            where: {
-                bdsid: existRecord.bdsid
-            }
-        })
-
-        await bat_dong_san.update({ tinhtrang: realEstateStatus.ACTIVE }, {
-            where: {
-                bdsid: existRecord.bdsid
+                cnid: hdchuyennhuong.cnid
             }
         })
 
         res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            message: ContractMess.CANCEL_SUCCESSED,
+            message: CommonMess.DELETE_SUCCESS,
         })
       } catch (error) {
-        console.log('Error in cancel deposit contract controller: ', error.message);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
+        console.log('ErrorController Delete Deposit Contract: ', error.message);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }

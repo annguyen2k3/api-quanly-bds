@@ -7,6 +7,7 @@ import { typeRealEstateRouter } from "./typeRealEstate.route"
 import { realEstateRoute } from "./realEstate.route"
 import {  consignmentContractRouter } from "./consignmentContract.route"
 import { depositContractRouter } from "./depositContract.route"
+import { transferContractRouter } from "./transferContract.route"
 
 const routers = (app: Express): void => {
     
@@ -29,6 +30,8 @@ const routers = (app: Express): void => {
     app.use("/consignment-contract", consignmentContractRouter)
 
     app.use("/deposit-contract", depositContractRouter)
+
+    app.use("/transfer-contract", transferContractRouter)
 }
 
 export default routers
