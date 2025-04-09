@@ -199,6 +199,42 @@ export const create = async (req: Request, res: Response) => {
         }
         // End Check MSQSDD
 
+        // check address
+        const checkAddress = await bat_dong_san.findOne({
+            where: {
+                tenduong: {
+                    [Op.like]: data.tenduong,
+                }, 
+                thanhpho: {
+                    [Op.like]: data.thanhpho,
+                }, 
+                sonha: {
+                    [Op.like]: data.sonha,
+                }, 
+                quan: {
+                    [Op.like]: data.quan,
+                }, 
+                phuong: {
+                    [Op.like]: data.phuong
+                }, 
+            }
+        })
+        if(checkAddress) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: RealEstateMess.ADDRESS_EXIST,
+                errors: {
+                    tenduong: RealEstateMess.ADDRESS_EXIST,
+                    thanhpho: RealEstateMess.ADDRESS_EXIST,
+                    sonha: RealEstateMess.ADDRESS_EXIST,
+                    quan: RealEstateMess.ADDRESS_EXIST,
+                    phuong: RealEstateMess.ADDRESS_EXIST
+                }
+            })
+            return;
+        }
+        // end check address
+
         const bdsmoi = await bat_dong_san.create(data)
 
         // Gán URL ảnh mới
@@ -330,6 +366,45 @@ export const update = async (req: Request, res: Response) => {
             return;
         }
         // End Check msqsdd
+
+        // check address
+        const checkAddress = await bat_dong_san.findOne({
+            where: {
+                bdsid: {
+                    [Op.ne]: bdsUpdate.bdsid
+                },
+                tenduong: {
+                    [Op.like]: data.tenduong,
+                }, 
+                thanhpho: {
+                    [Op.like]: data.thanhpho,
+                }, 
+                sonha: {
+                    [Op.like]: data.sonha,
+                }, 
+                quan: {
+                    [Op.like]: data.quan,
+                }, 
+                phuong: {
+                    [Op.like]: data.phuong
+                }, 
+            }
+        })
+        if(checkAddress) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: RealEstateMess.ADDRESS_EXIST,
+                errors: {
+                    tenduong: RealEstateMess.ADDRESS_EXIST,
+                    thanhpho: RealEstateMess.ADDRESS_EXIST,
+                    sonha: RealEstateMess.ADDRESS_EXIST,
+                    quan: RealEstateMess.ADDRESS_EXIST,
+                    phuong: RealEstateMess.ADDRESS_EXIST
+                }
+            })
+            return;
+        }
+        // end check address
 
         // Xoá ảnh cũ
         const imagesDel = await hinh_bds.findAll({

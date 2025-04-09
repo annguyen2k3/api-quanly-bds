@@ -282,6 +282,14 @@ export const cancel = async (req: Request, res: Response) => {
             return;
         }
 
+        if(existRecord.tinhtrang == depositContractStatus.COMPLETED) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                code: StatusCodes.BAD_REQUEST,
+                message: 'Không thể huỷ. ' + ContractMess.TRANSFER_SUCCESS,
+            })
+            return;
+        }
+
         await hd_dat_coc.update({ tinhtrang: 0 }, {
             where: {
                 dcid: existRecord.dcid

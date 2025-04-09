@@ -60,6 +60,7 @@ export const RealEstateMess = {
   IDTYPE_INVALID: 'Loại BDS không hợp lệ',
   ID_NOT_EXIST: 'Mã BDS không tồn tại',
   ADDRESS_REQUIRED: 'Địa chỉ không được để trống',
+  ADDRESS_EXIST: 'Địa chỉ đã tồn tại một bất động sản khác',
   STATUS_INVALID: 'Tình trạng không hợp lệ',
   ASSET_CODE: 'MSQSDD không hợp lệ',
   IMG_REQUIRED: 'Yêu cầu tải lên ít nhất 1 ảnh',
@@ -85,5 +86,6 @@ export const ContractMess = {
   COST_INVALID: 'Chi phí dịch vụ không hợp lệ',
   DATE_INVALID: 'Ngày không hợp lệ',
   CANCEL_SUCCESSED: 'Huỷ hợp đồng thành công',
-  CONTRACT_EXPIRED: 'Hợp đồng không còn hiệu lực'
+  CONTRACT_EXPIRED: 'Hợp đồng không còn hiệu lực',
+  TRANSFER_SUCCESS: 'Hợp đồng đã hoàn tất sang nhượng.'
 } as const;
