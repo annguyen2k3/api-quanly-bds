@@ -187,7 +187,10 @@ export const create = async (req: Request, res: Response) => {
         // Check MSQSDD
         const checkMSQSDD = await bat_dong_san.findOne({
             where: {
-                masoqsdd: data.masoqsdd
+                masoqsdd: data.masoqsdd,
+                tinhtrang: {
+                    [Op.ne]: realEstateStatus.SOLD
+                }
             }
         })
         if(checkMSQSDD) {
@@ -205,6 +208,9 @@ export const create = async (req: Request, res: Response) => {
         // check address
         const checkAddress = await bat_dong_san.findOne({
             where: {
+                tinhtrang: {
+                    [Op.ne]: realEstateStatus.SOLD
+                },
                 tenduong: {
                     [Op.like]: data.tenduong,
                 }, 
