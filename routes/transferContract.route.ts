@@ -26,8 +26,8 @@ router.post(
     controller.create
 )
 
-router.put(
-    "/delete/:cnid",
+router.delete(
+    "/:cnid",
     authMiddleware.requireAuth,
     authMiddleware.isAdmin,
     controller.deleteContract

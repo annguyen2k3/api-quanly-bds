@@ -230,14 +230,6 @@ export const create = async (req: Request, res: Response) => {
 
         const row = await hd_dat_coc.create({...req.body})
 
-        await hd_ky_gui.update({
-            trangthai: 0
-        }, {
-            where: {
-                bdsid: row.bdsid
-            }
-        })
-
         await bat_dong_san.update({
             tinhtrang: realEstateStatus.DEPOSITED
         }, {
@@ -316,4 +308,69 @@ export const cancel = async (req: Request, res: Response) => {
         console.log('Error in cancel deposit contract controller: ', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
       }
+}
+
+// [DELETE] /deposit-contract/:dcid
+export const deleted = async (req: Request, res: Response) => {
+    try {
+        const idDelete = req.params.dcid;
+
+        const contractDelete = await hd_dat_coc.findOne({
+            where: {
+                dcid: idDelete
+            },
+            raw: true
+        })
+
+        if(!contractDelete) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: ContractMess.DCID_NOT_EXIST,
+                errors: {
+                    dcid: ContractMess.DCID_NOT_EXIST
+                }
+            })
+            return
+        }
+
+        if(contractDelete.tinhtrang != 0) {
+            switch (contractDelete.tinhtrang) {
+                case depositContractStatus.DEPOSITED:
+                    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                        code: StatusCodes.UNPROCESSABLE_ENTITY,
+                        message: 'Không thể xoá. Hợp đồng đặt cọc đang hoạt động',
+                        errors: {
+                            dcid: 'Không thể xoá. Hợp đồng đặt cọc đang hoạt động'
+                        }
+                    })
+                    return
+                case depositContractStatus.COMPLETED:
+                    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                        code: StatusCodes.UNPROCESSABLE_ENTITY,
+                        message: 'Không thể xoá. Hợp đồng đặt cọc nằm trong hợp đồng chuyển nhượng còn lưu trữ',
+                        errors: {
+                            dcid: 'Không thể xoá. Hợp đồng đặt cọc nằm trong hợp đồng chuyển nhượng còn lưu trữ'
+                        }
+                    })
+                    return
+            
+                default:
+                    break;
+            }
+        }
+
+        await hd_dat_coc.destroy({
+            where: {
+                dcid: idDelete
+            }
+        })
+
+        res.status(StatusCodes.OK).json({
+            code: StatusCodes.OK,
+            message: CommonMess.DELETE_SUCCESS,
+        })
+    } catch (error) {
+        console.log('Error in delete deposit contract controller: ', error.message);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
+    }
 }

@@ -9,6 +9,7 @@ import { depositContractStatus, realEstateStatus } from "../constants/enums";
 import { nhan_vien } from "../models/nhan_vien.model";
 import { Sequelize, QueryTypes } from "sequelize";
 import  sequelize  from "../config/database"
+import { hd_ky_gui } from "../models/hd_ky_gui.model";
 
 // [GET] /transfer-contract/list
 export const getList = async (req: Request, res: Response) => {
@@ -198,6 +199,14 @@ export const create = async (req: Request, res: Response) => {
             giatri: req.body.giatri
         })
 
+        await hd_ky_gui.update({
+            trangthai: 0
+        }, {
+            where: {
+                bdsid: row.bdsid
+            }
+        })
+
         await hd_dat_coc.update({
             tinhtrang: depositContractStatus.COMPLETED
         }, {
@@ -241,7 +250,7 @@ export const create = async (req: Request, res: Response) => {
       }
 }
 
-// [PUT] /transfer-contract 
+// [DELETE] /transfer-contract/:cnid
 export const deleteContract = async (req: Request, res: Response) => {
     try {
         const id =  parseInt(req.params.cnid);
@@ -264,11 +273,15 @@ export const deleteContract = async (req: Request, res: Response) => {
             return;
         }
 
-        await hd_chuyen_nhuong.update({
-            trangthai: 0
-        }, {
+        await hd_chuyen_nhuong.destroy({
             where: {
                 cnid: hdchuyennhuong.cnid
+            }
+        })
+
+        await hd_dat_coc.destroy({
+            where: {
+                dcid: hdchuyennhuong.dcid
             }
         })
 
@@ -277,7 +290,7 @@ export const deleteContract = async (req: Request, res: Response) => {
             message: CommonMess.DELETE_SUCCESS,
         })
       } catch (error) {
-        console.log('ErrorController Delete Deposit Contract: ', error.message);
+        console.log('ErrorController Delete Transfer Contract: ', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: CommonMess.SERVER_ERROR });
       }
 }

@@ -6,6 +6,7 @@ import { khach_hang } from "../models/khach_hang.model";
 import { bat_dong_san } from "../models/bat_dong_san.model";
 import { Op, where } from "sequelize";
 import { realEstateStatus } from "../constants/enums";
+import { error } from "console";
 
 // [GET] /consignment-contract/list
 export const getList = async (req: Request, res: Response) => {
@@ -287,4 +288,54 @@ export const cancel = async (req: Request, res: Response) => {
         console.log('Error in cancel consignment contract controller: ', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
       }
+}
+
+// [DELETE] /consignment-contract/:kgid
+export const deleted = async (req: Request, res: Response) => {
+    try {
+        const idDelete = req.params.kgid;
+
+        const contractDelete = await hd_ky_gui.findOne({
+            where: {
+                kgid: idDelete
+            },
+            raw: true
+        })
+
+        if(!contractDelete) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: ContractMess.KGID_NOT_EXIST,
+                errors: {
+                    kgid: ContractMess.KGID_NOT_EXIST
+                }
+            })
+            return
+        }
+
+        if(contractDelete.trangthai != 0) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: 'Không thể xoá. Hợp đồng ký gửi đang hoạt động',
+                errors: {
+                    kgid: 'Không thể xoá. Hợp đồng ký gửi đang hoạt động'
+                }
+            })
+            return
+        }
+
+        await hd_ky_gui.destroy({
+            where: {
+                kgid: idDelete
+            }
+        })
+
+        res.status(StatusCodes.OK).json({
+            code: StatusCodes.OK,
+            message: CommonMess.DELETE_SUCCESS,
+        })
+    } catch (error) {
+        console.log('Error in delete consignment contract controller: ', error.message);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
+    }
 }

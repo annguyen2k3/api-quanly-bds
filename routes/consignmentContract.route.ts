@@ -33,5 +33,12 @@ router.put(
     controller.cancel
 )
 
+router.delete(
+    "/:kgid",
+    authMiddleware.requireAuth,
+    authMiddleware.isAdmin,
+    controller.deleted
+)
+
 
 export const consignmentContractRouter: Router = router

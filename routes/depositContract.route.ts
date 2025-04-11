@@ -33,4 +33,11 @@ router.put(
     controller.cancel
 )
 
+router.delete(
+    "/:dcid",
+    authMiddleware.requireAuth,
+    authMiddleware.isAdmin,
+    controller.deleted
+)
+
 export const depositContractRouter: Router = router

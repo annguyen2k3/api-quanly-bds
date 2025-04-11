@@ -40,5 +40,11 @@ router.put(
     controller.update
 )
 
+router.delete(
+    "/:id",
+    authMiddleware.requireAuth,
+    controller.deleted
+)
+
 
 export const realEstateRoute: Router = router

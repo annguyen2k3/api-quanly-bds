@@ -8,6 +8,9 @@ import { Op } from "sequelize";
 import { hinh_bds } from "../models/hinh_bds.model";
 import { deleteImgCloud } from "../helper/deleteImgCloudinary";
 import { realEstateStatus } from "../constants/enums";
+import { hd_ky_gui } from "../models/hd_ky_gui.model";
+import { hd_dat_coc } from "../models/hd_dat_coc.model";
+import { hd_chuyen_nhuong, HDChuyenNhuong } from "../models/hd_chuyen_nhuong.model";
 
 // [GET] /real-estate/list
 export const getList = async (req: Request, res: Response) => {
@@ -112,7 +115,7 @@ export const detail = async (req: Request, res: Response) => {
       }
 }
 
-// [POST] /real-esate 
+// [POST] /real-estate 
 export const create = async (req: Request, res: Response) => {
     try {
 
@@ -259,7 +262,7 @@ export const create = async (req: Request, res: Response) => {
       }
 }
 
-// [PUT] /real-esate/:id 
+// [PUT] /real-estate/:id 
 export const update = async (req: Request, res: Response) => {
     try {
         const idUpdate = req.params.id;
@@ -447,4 +450,78 @@ export const update = async (req: Request, res: Response) => {
         console.log('Error in update real-estate controller: ', error.message);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
       }
+}
+
+// [DELETE] /real-estate/:id
+export const deleted = async (req: Request, res: Response) => {
+    try {
+        const idDelete = req.params.id;
+
+        const bdsDel = await bat_dong_san.findOne({
+            where: {
+                bdsid: idDelete
+            },
+            raw: true
+        })
+
+        if(!bdsDel) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: RealEstateMess.ID_NOT_EXIST,
+                errors: {
+                    bdsid: RealEstateMess.ID_NOT_EXIST
+                }
+            })
+            return;
+        }
+
+        const inConsignment = await hd_ky_gui.findOne({
+            where: {
+                bdsid: idDelete
+            }
+        })
+
+        const inDeposit = await hd_dat_coc.findOne({
+            where: {
+                bdsid: idDelete
+            }
+        })
+
+        const inTransfer = await hd_chuyen_nhuong.findOne({
+            where: {
+                bdsid: idDelete
+            }
+        })
+
+        if(inConsignment || inDeposit || inTransfer) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: 'Không thể xoá. Bất động sản tồn tại trong 1 hợp đồng còn lưu trữ.',
+                errors: {
+                    bdsid: 'Không thể xoá. Bất động sản tồn tại trong 1 hợp đồng còn lưu trữ.'
+                }
+            })
+            return;
+        }
+
+        await hinh_bds.destroy({
+            where: {
+                bdsid: idDelete
+            }
+        })
+
+        await bat_dong_san.destroy({
+            where: {
+                bdsid: idDelete
+            }
+        })
+
+        res.status(StatusCodes.OK).json({
+            code: StatusCodes.OK,
+            message: CommonMess.DELETE_SUCCESS,
+        })
+    } catch (error) {
+        console.log('Error in delete real-estate controller: ', error.message);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({code: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Lỗi Server: ' + error.message });
+    }
 }
