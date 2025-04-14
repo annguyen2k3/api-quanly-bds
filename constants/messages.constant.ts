@@ -83,6 +83,7 @@ export const ContractMess = {
   STATUS_INVALID: 'Trạng thái hợp đồng không hợp lệ',
   CONDITION_INVALID: 'Tình trạng hợp đồng không hợp lệ',
   VALUE_INVALID: 'Giá trị không hợp lệ',
+  DEPOSIT_VALUE_INVALID: 'Giá trị đặt cọc không hợp lệ',
   COST_INVALID: 'Chi phí dịch vụ không hợp lệ',
   DATE_INVALID: 'Ngày không hợp lệ',
   CANCEL_SUCCESSED: 'Huỷ hợp đồng thành công',

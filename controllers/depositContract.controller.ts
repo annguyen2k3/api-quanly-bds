@@ -228,6 +228,25 @@ export const create = async (req: Request, res: Response) => {
         }
         // end check customer
 
+        // check giatri
+        const hdkg = await hd_ky_gui.findOne({
+            where: {
+                bdsid: req.body.bdsid,
+                trangthai: 1
+            }
+        })
+        if(req.body.giatri > hdkg.giatri) {
+            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+                code: StatusCodes.UNPROCESSABLE_ENTITY,
+                message: ContractMess.DEPOSIT_VALUE_INVALID,
+                errors: {
+                    giatri: ContractMess.DEPOSIT_VALUE_INVALID
+                }
+            })
+            return;
+        }
+        // end check giatri
+
         const row = await hd_dat_coc.create({...req.body})
 
         await bat_dong_san.update({
